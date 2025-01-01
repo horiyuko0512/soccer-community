@@ -45,6 +45,11 @@ type UserEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
+	// totalCount holds the count of the edges above.
+	totalCount [2]map[string]int
+
+	namedMatches           map[string][]*Match
+	namedUserParticipation map[string][]*Participation
 }
 
 // MatchesOrErr returns the Matches value or an error if the edge
@@ -198,6 +203,54 @@ func (u *User) String() string {
 	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedMatches returns the Matches named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (u *User) NamedMatches(name string) ([]*Match, error) {
+	if u.Edges.namedMatches == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := u.Edges.namedMatches[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (u *User) appendNamedMatches(name string, edges ...*Match) {
+	if u.Edges.namedMatches == nil {
+		u.Edges.namedMatches = make(map[string][]*Match)
+	}
+	if len(edges) == 0 {
+		u.Edges.namedMatches[name] = []*Match{}
+	} else {
+		u.Edges.namedMatches[name] = append(u.Edges.namedMatches[name], edges...)
+	}
+}
+
+// NamedUserParticipation returns the UserParticipation named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (u *User) NamedUserParticipation(name string) ([]*Participation, error) {
+	if u.Edges.namedUserParticipation == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := u.Edges.namedUserParticipation[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (u *User) appendNamedUserParticipation(name string, edges ...*Participation) {
+	if u.Edges.namedUserParticipation == nil {
+		u.Edges.namedUserParticipation = make(map[string][]*Participation)
+	}
+	if len(edges) == 0 {
+		u.Edges.namedUserParticipation[name] = []*Participation{}
+	} else {
+		u.Edges.namedUserParticipation[name] = append(u.Edges.namedUserParticipation[name], edges...)
+	}
 }
 
 // Users is a parsable slice of User.
