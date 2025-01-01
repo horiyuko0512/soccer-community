@@ -56,6 +56,10 @@ type MatchEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
+	// totalCount holds the count of the edges above.
+	totalCount [2]map[string]int
+
+	namedMatchParticipation map[string][]*Participation
 }
 
 // CreatorOrErr returns the Creator value or an error if the edge
@@ -260,6 +264,30 @@ func (m *Match) String() string {
 	builder.WriteString(fmt.Sprintf("%v", m.IsApplied))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedMatchParticipation returns the MatchParticipation named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (m *Match) NamedMatchParticipation(name string) ([]*Participation, error) {
+	if m.Edges.namedMatchParticipation == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := m.Edges.namedMatchParticipation[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (m *Match) appendNamedMatchParticipation(name string, edges ...*Participation) {
+	if m.Edges.namedMatchParticipation == nil {
+		m.Edges.namedMatchParticipation = make(map[string][]*Participation)
+	}
+	if len(edges) == 0 {
+		m.Edges.namedMatchParticipation[name] = []*Participation{}
+	} else {
+		m.Edges.namedMatchParticipation[name] = append(m.Edges.namedMatchParticipation[name], edges...)
+	}
 }
 
 // Matches is a parsable slice of Match.

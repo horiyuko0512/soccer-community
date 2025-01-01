@@ -4,6 +4,8 @@ package match
 
 import (
 	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -229,4 +231,22 @@ func newMatchParticipationStep() *sqlgraph.Step {
 		sqlgraph.To(MatchParticipationInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, MatchParticipationTable, MatchParticipationColumn),
 	)
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e Level) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *Level) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = Level(str)
+	if err := LevelValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid Level", str)
+	}
+	return nil
 }

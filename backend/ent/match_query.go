@@ -22,12 +22,15 @@ import (
 // MatchQuery is the builder for querying Match entities.
 type MatchQuery struct {
 	config
-	ctx                    *QueryContext
-	order                  []match.OrderOption
-	inters                 []Interceptor
-	predicates             []predicate.Match
-	withCreator            *UserQuery
-	withMatchParticipation *ParticipationQuery
+	ctx                         *QueryContext
+	order                       []match.OrderOption
+	inters                      []Interceptor
+	predicates                  []predicate.Match
+	withCreator                 *UserQuery
+	withMatchParticipation      *ParticipationQuery
+	modifiers                   []func(*sql.Selector)
+	loadTotal                   []func(context.Context, []*Match) error
+	withNamedMatchParticipation map[string]*ParticipationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -422,6 +425,9 @@ func (mq *MatchQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Match,
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(mq.modifiers) > 0 {
+		_spec.Modifiers = mq.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -441,6 +447,18 @@ func (mq *MatchQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Match,
 		if err := mq.loadMatchParticipation(ctx, query, nodes,
 			func(n *Match) { n.Edges.MatchParticipation = []*Participation{} },
 			func(n *Match, e *Participation) { n.Edges.MatchParticipation = append(n.Edges.MatchParticipation, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range mq.withNamedMatchParticipation {
+		if err := mq.loadMatchParticipation(ctx, query, nodes,
+			func(n *Match) { n.appendNamedMatchParticipation(name) },
+			func(n *Match, e *Participation) { n.appendNamedMatchParticipation(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for i := range mq.loadTotal {
+		if err := mq.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
@@ -509,6 +527,9 @@ func (mq *MatchQuery) loadMatchParticipation(ctx context.Context, query *Partici
 
 func (mq *MatchQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := mq.querySpec()
+	if len(mq.modifiers) > 0 {
+		_spec.Modifiers = mq.modifiers
+	}
 	_spec.Node.Columns = mq.ctx.Fields
 	if len(mq.ctx.Fields) > 0 {
 		_spec.Unique = mq.ctx.Unique != nil && *mq.ctx.Unique
@@ -589,6 +610,20 @@ func (mq *MatchQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedMatchParticipation tells the query-builder to eager-load the nodes that are connected to the "match_participation"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (mq *MatchQuery) WithNamedMatchParticipation(name string, opts ...func(*ParticipationQuery)) *MatchQuery {
+	query := (&ParticipationClient{config: mq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if mq.withNamedMatchParticipation == nil {
+		mq.withNamedMatchParticipation = make(map[string]*ParticipationQuery)
+	}
+	mq.withNamedMatchParticipation[name] = query
+	return mq
 }
 
 // MatchGroupBy is the group-by builder for Match entities.
