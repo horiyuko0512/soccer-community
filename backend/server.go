@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -10,13 +11,40 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/horiyuko0512/soccer-community/ent"
+	"github.com/horiyuko0512/soccer-community/ent/migrate"
 	"github.com/horiyuko0512/soccer-community/resolver"
+	"github.com/joho/godotenv"
 	"github.com/vektah/gqlparser/v2/ast"
+
+	_ "github.com/lib/pq"
 )
 
 const defaultPort = "8080"
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+	dsn := os.Getenv("DB_URL")
+	entOptions := []ent.Option{}
+	entOptions = append(entOptions, ent.Debug())
+	client, err := ent.Open("postgres", dsn, entOptions...)
+	if err != nil {
+		log.Fatalf("failed opening connection to postgres: %v", err)
+	}
+	defer client.Close()
+	ctx := context.Background()
+	err = client.Schema.Create(
+		ctx,
+		migrate.WithDropIndex(true),
+		migrate.WithDropColumn(true),
+	)
+	if err != nil {
+		log.Fatalf("failed creating schema resources: %v", err)
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
