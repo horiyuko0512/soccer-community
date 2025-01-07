@@ -7,10 +7,190 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/horiyuko0512/soccer-community/ent"
+	"github.com/horiyuko0512/soccer-community/ent/match"
+	"github.com/horiyuko0512/soccer-community/ent/participation"
 	"github.com/horiyuko0512/soccer-community/resolver/model"
 )
+
+// CreateMatch is the resolver for the CreateMatch field.
+func (r *mutationResolver) CreateMatch(ctx context.Context, input model.CreateMatchInput) (*model.Match, error) {
+	userId, ok := ctx.Value("userId").(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get userId")
+	}
+	match, err := r.client.Match.
+		Create().
+		SetTitle(input.Title).
+		SetDate(input.Date).
+		SetLocation(input.Location).
+		SetLevel(input.Level).
+		SetParticipants(int(input.Participants)).
+		SetFee(int(input.Fee)).
+		SetNotes(input.Notes).
+		SetCreatorID(uuid.MustParse(userId)).
+		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create match: %w", err)
+	}
+	return &model.Match{
+		ID:           match.ID.String(),
+		Title:        match.Title,
+		Date:         match.Date,
+		Location:     match.Location,
+		Level:        match.Level,
+		Participants: int32(match.Participants),
+		Fee:          int32(match.Fee),
+		Notes:        match.Notes,
+		CreatorID:    match.CreatorID.String(),
+	}, nil
+}
+
+// UpdateMatch is the resolver for the UpdateMatch field.
+func (r *mutationResolver) UpdateMatch(ctx context.Context, id string, input model.UpdateMatchInput) (*model.Match, error) {
+	update := r.client.Match.UpdateOneID(uuid.MustParse(id))
+	if input.Title != nil {
+		update = update.SetTitle(*input.Title)
+	}
+	if input.Date != nil {
+		update = update.SetDate(*input.Date)
+	}
+	if input.Location != nil {
+		update = update.SetLocation(*input.Location)
+	}
+	if input.Level != nil {
+		update = update.SetLevel(*input.Level)
+	}
+	if input.Participants != nil {
+		update = update.SetParticipants(int(*input.Participants))
+	}
+	if input.Fee != nil {
+		update = update.SetFee(int(*input.Fee))
+	}
+	if input.Notes != nil {
+		update = update.SetNotes(*input.Notes)
+	}
+	update.SetUpdatedAt(time.Now())
+	if input.IsApplied != nil {
+		update = update.SetIsApplied(*input.IsApplied)
+	}
+	match, err := update.Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed updating match: %w", err)
+	}
+	return &model.Match{
+		ID:           match.ID.String(),
+		Title:        match.Title,
+		Date:         match.Date,
+		Location:     match.Location,
+		Level:        match.Level,
+		Participants: int32(match.Participants),
+		Fee:          int32(match.Fee),
+		Notes:        match.Notes,
+		CreatorID:    match.CreatorID.String(),
+	}, nil
+}
+
+// CreateParticipation is the resolver for the CreateParticipation field.
+func (r *mutationResolver) CreateParticipation(ctx context.Context, input model.CreateParticipationInput) (*model.Participation, error) {
+	userId, ok := ctx.Value("userId").(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get creator id")
+	}
+	participation, err := r.client.Participation.
+		Create().
+		SetUserID(uuid.MustParse(userId)).
+		SetMatchID(uuid.MustParse(input.MatchID)).
+		SetStatus(*input.Status).
+		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create participation: %w", err)
+	}
+	return &model.Participation{
+		ID:      participation.ID.String(),
+		UserID:  participation.UserID.String(),
+		MatchID: participation.MatchID.String(),
+		Status:  participation.Status,
+	}, nil
+}
+
+// UpdateParticipation is the resolver for the UpdateParticipation field.
+func (r *mutationResolver) UpdateParticipation(ctx context.Context, id string, input model.UpdateParticipationInput) (*model.Participation, error) {
+	participationID, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid participation ID: %w", err)
+	}
+	update := r.client.Participation.UpdateOneID(participationID)
+	if input.Status != nil {
+		update = update.SetStatus(*input.Status)
+	}
+	update.SetUpdatedAt(time.Now())
+	participation, err := update.Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed updating participation: %w", err)
+	}
+	return &model.Participation{
+		ID:      participation.ID.String(),
+		UserID:  participation.UserID.String(),
+		MatchID: participation.MatchID.String(),
+		Status:  participation.Status,
+	}, nil
+}
+
+// CreateUser is the resolver for the CreateUser field.
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+	user, err := r.client.User.
+		Create().
+		SetNickName(input.Nickname).
+		SetEmail(input.Email).
+		SetPasswordHash(input.PasswordHash).
+		SetIntroduction(input.Introduction).
+		Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+	return &model.User{
+		ID:           user.ID.String(),
+		NickName:     user.NickName,
+		Email:        user.Email,
+		Introduction: user.Introduction,
+	}, nil
+}
+
+// UpdateUser is the resolver for the UpdateUser field.
+func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error) {
+	userId, ok := ctx.Value("userId").(string)
+	if !ok {
+		return nil, fmt.Errorf("failed to get creator id")
+	}
+	update := r.client.User.UpdateOneID(uuid.MustParse(userId))
+	if input.Nickname != nil {
+		update = update.SetNickName(*input.Nickname)
+	}
+	if input.Email != nil {
+		update = update.SetEmail(*input.Email)
+	}
+	if input.PasswordHash != nil {
+		update = update.SetPasswordHash(*input.PasswordHash)
+	}
+	if input.Introduction != nil {
+		update = update.SetIntroduction(*input.Introduction)
+	}
+	update.SetUpdatedAt(time.Now())
+	user, err := update.Save(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed updating user: %w", err)
+	}
+	return &model.User{
+		ID:           user.ID.String(),
+		NickName:     user.NickName,
+		Email:        user.Email,
+		Introduction: user.Introduction,
+	}, nil
+}
 
 // Node is the resolver for the node field.
 func (r *queryResolver) Node(ctx context.Context, id string) (ent.Noder, error) {
@@ -24,20 +204,76 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, e
 
 // Matches is the resolver for the matches field.
 func (r *queryResolver) Matches(ctx context.Context) ([]*model.Match, error) {
-	panic(fmt.Errorf("not implemented: Matches - matches"))
+	matches, err := r.client.Match.Query().
+		WithCreator().
+		Order(ent.Desc(match.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying matches: %w", err)
+	}
+
+	var result []*model.Match
+	for _, match := range matches {
+		result = append(result, &model.Match{
+			ID:        match.ID.String(),
+			Title:     match.Title,
+			Date:      match.Date,
+			Location:  match.Location,
+			Level:     match.Level,
+			CreatorID: match.CreatorID.String(),
+			IsApplied: match.IsApplied,
+		})
+	}
+	return result, nil
 }
 
 // Participations is the resolver for the participations field.
 func (r *queryResolver) Participations(ctx context.Context) ([]*model.Participation, error) {
-	panic(fmt.Errorf("not implemented: Participations - participations"))
+	participations, err := r.client.Participation.Query().
+		WithUser().
+		WithMatch().
+		Order(ent.Desc(participation.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying participations: %w", err)
+	}
+
+	var result []*model.Participation
+	for _, participation := range participations {
+		result = append(result, &model.Participation{
+			ID:      participation.ID.String(),
+			UserID:  participation.UserID.String(),
+			MatchID: participation.MatchID.String(),
+			Status:  participation.Status,
+		})
+	}
+	return result, nil
 }
 
 // Users is the resolver for the users field.
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	panic(fmt.Errorf("not implemented: Users - users"))
+	users, err := r.client.User.Query().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying users: %w", err)
+	}
+
+	var result []*model.User
+	for _, user := range users {
+		result = append(result, &model.User{
+			ID:           user.ID.String(),
+			NickName:     user.NickName,
+			Email:        user.Email,
+			Introduction: user.Introduction,
+		})
+	}
+	return result, nil
 }
+
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

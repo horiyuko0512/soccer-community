@@ -194,6 +194,9 @@ type MatchWhereInput struct {
 	HasMatchParticipationWith []*ParticipationWhereInput `json:"hasMatchParticipationWith,omitempty"`
 }
 
+type Mutation struct {
+}
+
 // Information about pagination in a connection.
 // https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo
 type PageInfo struct {
