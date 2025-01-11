@@ -50,7 +50,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.New(resolver.NewExecutableSchema(resolver.Config{Resolvers: &resolver.Resolver{}}))
+	srv := handler.New(resolver.NewSchema(client))
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

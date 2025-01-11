@@ -380,9 +380,20 @@ type Query {
     """
     ids: [ID!]!
   ): [Node]!
+  matche(id: ID!): Match!
   matches: [Match!]!
+  participation(id: ID!): Participation!
   participations: [Participation!]!
+  user(id: ID!): User!
   users: [User!]!
+}
+type Mutation {
+  createMatch(input: CreateMatchInput!): Match!
+  updateMatch(id: ID!, input: UpdateMatchInput!): Match!
+  createParticipation(input: CreateParticipationInput!): Participation!
+  updateParticipation(id: ID!, input: UpdateParticipationInput!): Participation!
+  createUser(input: CreateUserInput!): User!
+  updateUser(input: UpdateUserInput!): User!
 }
 """
 The builtin Time type
