@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 
-const MyPage = () => {
+const MatchPage = () => {
   return (
     <>
       <Header/>
@@ -9,4 +9,4 @@ const MyPage = () => {
   )
 };
 
-export default MyPage;
+export default MatchPage;

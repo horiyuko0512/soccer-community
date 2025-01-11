@@ -12,7 +12,7 @@ import Link from "next/link"
 const RegisterPage = () => {
   const router = useRouter();
   return (
-    <div className="min-h-screen bg-sky-50">
+    <div className="min-h-screen bg-sky-50 flex flex-col">
       <div className="bg-sky-500 p-4 text-white mb-6">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold">新規登録</h1>
@@ -23,7 +23,7 @@ const RegisterPage = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 pb-8">
+      <div className="container mx-auto px-4 pb-8 flex-grow flex items-center justify-center">
         <Card>
           <CardHeader>
             <CardTitle className="text-xl text-sky-900">アカウント情報入力</CardTitle>
