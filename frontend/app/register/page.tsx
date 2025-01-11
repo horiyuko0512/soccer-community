@@ -35,7 +35,7 @@ const RegisterPage = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder="example@email.com"
                   required
                 />
               </div>
