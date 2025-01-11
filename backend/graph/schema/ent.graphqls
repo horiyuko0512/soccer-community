@@ -380,8 +380,11 @@ type Query {
     """
     ids: [ID!]!
   ): [Node]!
+  matche(id: ID!): Match!
   matches: [Match!]!
+  participation(id: ID!): Participation!
   participations: [Participation!]!
+  user(id: ID!): User!
   users: [User!]!
 }
 type Mutation {

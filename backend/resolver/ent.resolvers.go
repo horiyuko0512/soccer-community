@@ -46,6 +46,7 @@ func (r *mutationResolver) CreateMatch(ctx context.Context, input model.CreateMa
 		Fee:          int32(match.Fee),
 		Notes:        match.Notes,
 		CreatorID:    match.CreatorID.String(),
+		IsApplied:    match.IsApplied,
 	}, nil
 }
 
@@ -91,6 +92,7 @@ func (r *mutationResolver) UpdateMatch(ctx context.Context, id string, input mod
 		Fee:          int32(match.Fee),
 		Notes:        match.Notes,
 		CreatorID:    match.CreatorID.String(),
+		IsApplied:    match.IsApplied,
 	}, nil
 }
 
@@ -202,6 +204,26 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, e
 	panic(fmt.Errorf("not implemented: Nodes - nodes"))
 }
 
+// Matche is the resolver for the matche field.
+func (r *queryResolver) Matche(ctx context.Context, id string) (*model.Match, error) {
+	match, err := r.client.Match.Get(ctx, uuid.MustParse(id))
+	if err != nil {
+		return nil, fmt.Errorf("failed getting match: %w", err)
+	}
+	return &model.Match{
+		ID:           match.ID.String(),
+		Title:        match.Title,
+		Date:         match.Date,
+		Location:     match.Location,
+		Level:        match.Level,
+		Participants: int32(match.Participants),
+		Fee:          int32(match.Fee),
+		Notes:        match.Notes,
+		CreatorID:    match.CreatorID.String(),
+		IsApplied:    match.IsApplied,
+	}, nil
+}
+
 // Matches is the resolver for the matches field.
 func (r *queryResolver) Matches(ctx context.Context) ([]*model.Match, error) {
 	matches, err := r.client.Match.Query().
@@ -220,11 +242,28 @@ func (r *queryResolver) Matches(ctx context.Context) ([]*model.Match, error) {
 			Date:      match.Date,
 			Location:  match.Location,
 			Level:     match.Level,
+			Participants: int32(match.Participants),
+			Fee:          int32(match.Fee),
+			Notes:        match.Notes,
 			CreatorID: match.CreatorID.String(),
 			IsApplied: match.IsApplied,
 		})
 	}
 	return result, nil
+}
+
+// Participation is the resolver for the participation field.
+func (r *queryResolver) Participation(ctx context.Context, id string) (*model.Participation, error) {
+	participation, err := r.client.Participation.Get(ctx, uuid.MustParse(id))
+	if err != nil {
+		return nil, fmt.Errorf("failed getting participation: %w", err)
+	}
+	return &model.Participation{
+		ID:      participation.ID.String(),
+		UserID:  participation.UserID.String(),
+		MatchID: participation.MatchID.String(),
+		Status:  participation.Status,
+	}, nil
 }
 
 // Participations is the resolver for the participations field.
@@ -248,6 +287,20 @@ func (r *queryResolver) Participations(ctx context.Context) ([]*model.Participat
 		})
 	}
 	return result, nil
+}
+
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+	user, err := r.client.User.Get(ctx, uuid.MustParse(id))
+	if err != nil {
+		return nil, fmt.Errorf("failed getting user: %w", err)
+	}
+	return &model.User{
+		ID:           user.ID.String(),
+		NickName:     user.NickName,
+		Email:        user.Email,
+		Introduction: user.Introduction,
+	}, nil
 }
 
 // Users is the resolver for the users field.
