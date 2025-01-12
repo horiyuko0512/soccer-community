@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
+import { useRouter } from 'next/navigation';
 
 const MatchListPage = () => {
+  const router = useRouter();
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [level, setLevel] = useState('');
@@ -132,7 +134,9 @@ const MatchListPage = () => {
                   <p>レベル: 初級</p>
                 </div>
                 <div className="mt-4">
-                  <Button className="w-full bg-sky-500 hover:bg-sky-600">
+                  <Button
+                    className="w-full bg-sky-500 hover:bg-sky-600"
+                    onClick={() => router.push(`/matches/${match}`)}>
                     詳細を見る
                   </Button>
                 </div>
