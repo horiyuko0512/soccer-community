@@ -33,7 +33,7 @@ const MatchListPage = () => {
         <h1 className="text-2xl font-bold text-gray-900">試合一覧</h1>
         <Button
           className="bg-sky-500 hover:bg-sky-600 text-white"
-          onClick={() => console.log('Create match clicked')}
+          onClick={() => router.push('/create')}
         >
           試合を作成
         </Button>

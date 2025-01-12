@@ -11,7 +11,7 @@ const MatchPage = () => {
     <>
       <Header/>
       <div className="flex justify-between items-center mb-4 mt-6 px-4">
-        <h1 className="text-2xl font-bold text-gray-900">試合一覧</h1>
+        <h1 className="text-2xl font-bold text-gray-900">試合詳細</h1>
         <Button
           className="bg-sky-500 hover:bg-sky-600 text-white"
           onClick={() => router.back()}
@@ -42,7 +42,7 @@ const MatchPage = () => {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-sky-700 mb-1">募集人数</h3>
-                <p>4人（残り2人）</p>
+                <p>4人</p>
               </div>
               <div>
                 <h3 className="text-sm font-medium text-sky-700 mb-1">参加費</h3>
@@ -52,17 +52,12 @@ const MatchPage = () => {
                 <h3 className="text-sm font-medium text-sky-700 mb-1">備考</h3>
                 <p>初心者歓迎です！楽しくサッカーしましょう！</p>
               </div>
+              <Button className="w-full bg-sky-500 hover:bg-sky-600">
+              この試合に応募する
+              </Button>
             </div>
           </CardContent>
         </Card>
-
-        <div className="fixed bottom-0 left-0 right-0 p-4">
-          <div className="container mx-auto">
-            <Button className="w-full bg-sky-500 hover:bg-sky-600">
-              この試合に応募する
-            </Button>
-          </div>
-        </div>
       </div>
     </>
   )
