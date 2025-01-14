@@ -79,14 +79,14 @@ const MyPage = () => {
                     />
                   </div>
                   <div className="flex space-x-2">
-                    <Button 
+                    <Button
                       onClick={handleSave}
                       className="bg-sky-500 hover:bg-sky-600 text-white"
                     >
                       保存
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={handleCancel}
                     >
                       キャンセル
@@ -142,6 +142,7 @@ const MyPage = () => {
                       <Button
                         variant="outline"
                         className="text-sm"
+                        onClick={() => router.push(`/management/${match}`)}
                       >
                         管理する
                       </Button>
