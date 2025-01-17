@@ -13,6 +13,7 @@ import (
 	"github.com/horiyuko0512/soccer-community/ent"
 	"github.com/horiyuko0512/soccer-community/ent/match"
 	"github.com/horiyuko0512/soccer-community/ent/participation"
+	"github.com/horiyuko0512/soccer-community/internal/auth"
 	"github.com/horiyuko0512/soccer-community/resolver/model"
 )
 
@@ -144,11 +145,16 @@ func (r *mutationResolver) UpdateParticipation(ctx context.Context, id string, i
 
 // CreateUser is the resolver for the CreateUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+	hashedPassword, err := auth.PasswordEncrypt(input.PasswordHash)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt password: %w", err)
+	}
+
 	user, err := r.client.User.
 		Create().
 		SetNickName(input.Nickname).
 		SetEmail(input.Email).
-		SetPasswordHash(input.PasswordHash).
+		SetPasswordHash(hashedPassword).
 		SetIntroduction(input.Introduction).
 		Save(ctx)
 	if err != nil {
