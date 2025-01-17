@@ -64,7 +64,15 @@ func main() {
 	})
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.HandleFunc("/query", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+
+		ctx := context.WithValue(r.Context(), "ResponseWriter", w)
+		r = r.WithContext(ctx)
+
+		srv.ServeHTTP(w, r)
+  })
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

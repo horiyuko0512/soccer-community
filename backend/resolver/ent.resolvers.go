@@ -13,6 +13,8 @@ import (
 	"github.com/horiyuko0512/soccer-community/ent"
 	"github.com/horiyuko0512/soccer-community/ent/match"
 	"github.com/horiyuko0512/soccer-community/ent/participation"
+	"github.com/horiyuko0512/soccer-community/ent/user"
+	"github.com/horiyuko0512/soccer-community/internal/auth"
 	"github.com/horiyuko0512/soccer-community/resolver/model"
 )
 
@@ -144,16 +146,30 @@ func (r *mutationResolver) UpdateParticipation(ctx context.Context, id string, i
 
 // CreateUser is the resolver for the CreateUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+	hashedPassword, err := auth.PasswordEncrypt(input.PasswordHash)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encrypt password: %w", err)
+	}
+
 	user, err := r.client.User.
 		Create().
 		SetNickName(input.Nickname).
 		SetEmail(input.Email).
-		SetPasswordHash(input.PasswordHash).
+		SetPasswordHash(hashedPassword).
 		SetIntroduction(input.Introduction).
 		Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
+
+	//JWTの生成
+	token, err := auth.GenerateJWT(user.ID.String())
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate token: %w", err)
+	}
+	//Cookieの設定
+	auth.SetCookie(ctx, token)
+
 	return &model.User{
 		ID:           user.ID.String(),
 		NickName:     user.NickName,
@@ -192,6 +208,29 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, input model.UpdateUse
 		Email:        user.Email,
 		Introduction: user.Introduction,
 	}, nil
+}
+
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, email string, password string) (string, error) {
+	user, err := r.client.User.Query().Where(user.EmailEQ(email)).Only(ctx)
+	if err != nil {
+		return "ユーザー情報の取得に失敗しました", fmt.Errorf("failed to get user: %w", err)
+	}
+
+	err = auth.CompareHashAndPassword(user.PasswordHash, password)
+	if err != nil {
+		return "パスワードが違います", fmt.Errorf("failed to compare password: %w", err)
+	}
+
+	//JWTの生成
+	token, err := auth.GenerateJWT(user.ID.String())
+	if err != nil {
+		return "トークンの生成に失敗しました", fmt.Errorf("failed to generate token: %w", err)
+	}
+	//Cookieの設定
+	auth.SetCookie(ctx, token)
+
+	return token, nil
 }
 
 // Node is the resolver for the node field.
@@ -237,16 +276,16 @@ func (r *queryResolver) Matches(ctx context.Context) ([]*model.Match, error) {
 	var result []*model.Match
 	for _, match := range matches {
 		result = append(result, &model.Match{
-			ID:        match.ID.String(),
-			Title:     match.Title,
-			Date:      match.Date,
-			Location:  match.Location,
-			Level:     match.Level,
+			ID:           match.ID.String(),
+			Title:        match.Title,
+			Date:         match.Date,
+			Location:     match.Location,
+			Level:        match.Level,
 			Participants: int32(match.Participants),
 			Fee:          int32(match.Fee),
 			Notes:        match.Notes,
-			CreatorID: match.CreatorID.String(),
-			IsApplied: match.IsApplied,
+			CreatorID:    match.CreatorID.String(),
+			IsApplied:    match.IsApplied,
 		})
 	}
 	return result, nil
