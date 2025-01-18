@@ -69,6 +69,7 @@ func main() {
 	http.Handle("/query", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
 		ctx := context.WithValue(r.Context(), auth.ResponseWriterKey, w)
 		r = r.WithContext(ctx)
