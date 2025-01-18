@@ -1,0 +1,85 @@
+# 特定のユーザー閲覧用
+query User($id: ID!) {
+  user(id: $id) {
+    id
+    nickname
+    email
+    introduction
+  }
+}
+
+# すべてのユーザー閲覧用
+query Users {
+  users {
+    id
+    nickname
+    email
+    introduction
+  }
+}
+
+# 特定の試合閲覧用
+query Match($id: ID!) {
+  matche(id: $id) {
+    id
+    title
+    date
+    location
+    level
+    participants
+    fee
+    notes
+    creatorID
+    isApplied
+  }
+}
+
+# すべての試合閲覧用
+query Matches {
+  matches {
+    id
+    title
+    date
+    location
+    level
+    participants
+    fee
+    notes
+    creatorID
+    isApplied
+  }
+}
+
+# 特定の関係閲覧用
+query Participation($id: ID!) {
+  participation(id: $id) {
+    id
+    userID
+    matchID
+    status
+  }
+}
+
+# すべての関係閲覧用
+query Participations {
+  participations {
+    id
+    userID
+    matchID
+    status
+  }
+}
+
+# 特定のノードを取得
+query Node($id: ID!) {
+  node(id: $id) {
+    id
+  }
+}
+
+# 複数のノードを取得
+query Nodes($ids: [ID!]!) {
+  nodes(ids: $ids) {
+    id
+  }
+}
