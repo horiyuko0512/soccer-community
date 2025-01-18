@@ -13,6 +13,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/horiyuko0512/soccer-community/ent"
 	"github.com/horiyuko0512/soccer-community/ent/migrate"
+	"github.com/horiyuko0512/soccer-community/internal/auth"
+	"github.com/horiyuko0512/soccer-community/internal/middleware"
 	"github.com/horiyuko0512/soccer-community/resolver"
 	"github.com/joho/godotenv"
 	"github.com/vektah/gqlparser/v2/ast"
@@ -64,15 +66,15 @@ func main() {
 	})
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.HandleFunc("/query", func(w http.ResponseWriter, r *http.Request) {
+	http.Handle("/query", middleware.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
 
-		ctx := context.WithValue(r.Context(), "ResponseWriter", w)
+		ctx := context.WithValue(r.Context(), auth.ResponseWriterKey, w)
 		r = r.WithContext(ctx)
 
 		srv.ServeHTTP(w, r)
-  })
+	})))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

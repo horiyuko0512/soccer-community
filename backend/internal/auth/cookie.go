@@ -7,8 +7,11 @@ import (
 	"time"
 )
 
+type contextKey string
+const ResponseWriterKey contextKey = "ResponseWriter"
+
 func SetCookie(ctx context.Context,token string) {
-	w, ok := ctx.Value("ResponseWriter").(http.ResponseWriter)
+	w, ok := ctx.Value(ResponseWriterKey).(http.ResponseWriter)
 	if !ok {
 		fmt.Println("ResponseWriter not found")
 	}
