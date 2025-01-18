@@ -1,0 +1,76 @@
+# ユーザー作成用
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    id
+    nickname
+    email
+    introduction
+  }
+}
+
+# ユーザー変更用
+mutation UpdateUser($input: UpdateUserInput!) {
+  updateUser(input: $input) {
+    id
+    nickname
+    email
+    introduction
+  }
+}
+
+# 試合作成用
+mutation CreateMatch($input: CreateMatchInput!) {
+  createMatch(input: $input) {
+    id
+    title
+    date
+    location
+    level
+    participants
+    fee
+    notes
+    creatorID
+    isApplied
+  }
+}
+
+# 試合変更用
+mutation UpdateMatch($id: ID!, $input: UpdateMatchInput!) {
+  updateMatch(id: $id, input: $input) {
+    id
+    title
+    date
+    location
+    level
+    participants
+    fee
+    notes
+    creatorID
+    isApplied
+  }
+}
+
+# 関係作成用
+mutation CreateParticipation($input: CreateParticipationInput!) {
+  createParticipation(input: $input) {
+    id
+    userID
+    matchID
+    status
+  }
+}
+
+# 関係変更用
+mutation UpdateParticipation($id: ID!, $input: UpdateParticipationInput!) {
+  updateParticipation(id: $id, input: $input) {
+    id
+    userID
+    matchID
+    status
+  }
+}
+
+# ログイン用
+mutation Login($email: String!, $password: String!) {
+  login(email: $email, password: $password)
+}
