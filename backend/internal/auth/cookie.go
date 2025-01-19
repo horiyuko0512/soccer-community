@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -17,7 +18,7 @@ func SetCookie(ctx context.Context,token string) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "jwt-token",
+		Name:     os.Getenv("COOKIE_NAME"),
 		Value:    token,
 		Expires:  time.Now().Add(72 * time.Hour),
 		HttpOnly: true,

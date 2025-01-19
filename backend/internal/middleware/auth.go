@@ -15,7 +15,7 @@ const UserIdKey contextKey = "userId"
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("jwt-token")
+		cookie, err := r.Cookie(os.Getenv("COOKIE_NAME"))
 		if err != nil {
 			next.ServeHTTP(w, r)
 			return
