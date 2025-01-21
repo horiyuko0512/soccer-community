@@ -1,7 +1,13 @@
+'use client';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function Home() {
-  return (
-      <main>
-        <h1>Home</h1>
-      </main>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push('/top');
+  }, [router]);
+
+  return null;
 }

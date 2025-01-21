@@ -95,7 +95,7 @@ const LoginForm = () => {
             className="w-full bg-sky-500 hover:bg-sky-600"
             disabled={loading || loginSuccessful}
           >
-            {loading ? <Loader className="animate-spin" /> : loginSuccessful ? "ページ遷移中" : "ログイン"}
+            {loading ? <Loader className="animate-spin" /> : loginSuccessful ? "ログイン完了" : "ログイン"}
           </Button>
           {error && (
             <p className="text-red-500 text-sm">メールアドレスまたはパスワードが間違っています</p>
