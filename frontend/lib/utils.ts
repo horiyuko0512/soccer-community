@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+import dayjs from "dayjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -20,4 +21,13 @@ export const formatToJapaneseDateTime = (utcDate: Date) => {
     console.error("日付フォーマットエラー:", error);
     return "不明な日時";
   }
+};
+
+/**
+ * 日付をISO 8601形式 (YYYY-MM-DDTHH:mm:ssZ) に変換するユーティリティ関数
+ * @param date - `YYYY-MM-DD` の形式の文字列
+ * @returns ISO 8601形式の文字列
+ */
+export const formatDateToISO = (date: string): string => {
+  return dayjs(date).toISOString();
 };
