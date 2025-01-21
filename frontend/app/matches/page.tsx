@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Header from "@/components/Header";
 import { useRouter } from 'next/navigation';
+import { useMatchesQuery } from '@/graphql/generated/graphql';
+import { formatToJapaneseDateTime } from '@/lib/utils';
 
 const MatchListPage = () => {
   const router = useRouter();
@@ -14,6 +16,13 @@ const MatchListPage = () => {
   const [level, setLevel] = useState('');
   const [participants, setParticipants] = useState('');
   const [fee, setFee] = useState('');
+  const { data, loading, error } = useMatchesQuery()
+
+  if (loading) return <p>Loading...</p>;
+  if (error){
+    console.error(error)
+    return <p>エラーが生じました</p>;
+  }
 
   const handleSearch = () => {
     // 検索ロジックをここに追加
@@ -117,26 +126,26 @@ const MatchListPage = () => {
         </Card>
 
         <div className="space-y-4">
-          {[1, 2, 3, 4].map((match) => (
-            <Card key={match} className="hover:shadow-lg transition-shadow">
+          {data?.matches?.map((match) => (
+            <Card key={match.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-4">
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-bold text-sky-900">
-                    エンジョイフットサル
+                    {match.title}
                   </h3>
                   <span className="bg-sky-100 text-sky-800 px-2 py-1 rounded-full text-sm">
-                    募集中
+                    {match.isApplied ? '応募中' : '停止中'}
                   </span>
                 </div>
                 <div className="space-y-2 text-sm text-sky-700">
-                  <p>2024年12月31日 15:00～17:00</p>
-                  <p>渋谷区スポーツセンター</p>
-                  <p>レベル: 初級</p>
+                  <p>{formatToJapaneseDateTime(match.date)}</p>
+                  <p>{match.location}</p>
+                  <p>レベル: {levels.find((item) => item.id === match.level)?.label}</p>
                 </div>
                 <div className="mt-4">
                   <Button
                     className="w-full bg-sky-500 hover:bg-sky-600"
-                    onClick={() => router.push(`/matches/${match}`)}>
+                    onClick={() => router.push(`/matches/${match.id}`)}>
                     詳細を見る
                   </Button>
                 </div>
