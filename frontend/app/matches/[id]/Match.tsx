@@ -12,9 +12,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useMatchQuery } from "@/graphql/generated/graphql"
+import { Alert } from "@/components/ui/alert"
+import {
+  ParticipationStatus,
+  useCreateParticipationMutation,
+  useMatchQuery,
+} from "@/graphql/generated/graphql"
 import { formatToJapaneseDateTime } from "@/lib/utils"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 type MatchProps = {
   id: string
@@ -31,7 +37,12 @@ const Match = ({ id }: MatchProps) => {
     variables: { id },
   })
 
+  const [createParticipation] = useCreateParticipationMutation()
+
+  const router = useRouter()
   const [showApplyDialog, setShowApplyDialog] = useState(false)
+  const [isApplying, setIsApplying] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   if (loading) {
     return (
@@ -62,10 +73,28 @@ const Match = ({ id }: MatchProps) => {
     setShowApplyDialog(true)
   }
 
-  const confirmApply = () => {
-    // ここでAPIを呼び出して応募処理を実行
+  const confirmApply = async () => {
     console.log("応募処理を実行")
-    setShowApplyDialog(false)
+    setIsApplying(true)
+    setErrorMessage(null)
+    try {
+      await createParticipation({
+        variables: {
+          input: {
+            matchID: match.id,
+            userID: "",
+            status: ParticipationStatus.Pending,
+          },
+        },
+      })
+      setShowApplyDialog(false)
+    } catch (err) {
+      console.error("応募エラー:", err)
+      setErrorMessage("応募に失敗しました。もう一度お試しください。")
+    } finally {
+      setIsApplying(false)
+      router.push("/my")
+    }
   }
 
   return (
@@ -105,13 +134,29 @@ const Match = ({ id }: MatchProps) => {
             <Button
               className={`w-full ${match.isApplied ? "bg-sky-500 hover:bg-sky-600" : "bg-gray-500 cursor-not-allowed"}`}
               onClick={handleApply}
-              disabled={!match.isApplied}
+              disabled={!match.isApplied || isApplying}
             >
-              {match.isApplied ? "この試合に応募する" : "この応募は停止中です"}
+              {isApplying
+                ? "応募中..."
+                : match.isApplied
+                  ? "この試合に応募する"
+                  : "この応募は停止中です"}
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      {/* エラーメッセージ表示 */}
+      {errorMessage && (
+        <div className="mt-4">
+          <Alert
+            variant="destructive"
+            className="text-red-600"
+          >
+            {errorMessage}
+          </Alert>
+        </div>
+      )}
 
       {/* 応募確認ダイアログ */}
       <AlertDialog
@@ -128,8 +173,9 @@ const Match = ({ id }: MatchProps) => {
             <AlertDialogAction
               onClick={confirmApply}
               className="bg-sky-500 hover:bg-sky-600"
+              disabled={isApplying}
             >
-              応募する
+              {isApplying ? "応募中..." : "応募する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
