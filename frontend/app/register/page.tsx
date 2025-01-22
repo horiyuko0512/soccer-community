@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import React from 'react';
-import RegisterForm from './RegisterForm';
-import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
+import React from "react"
+import RegisterForm from "./RegisterForm"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 const RegisterPage = () => {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <div className="min-h-screen bg-sky-50 flex flex-col">
@@ -29,7 +29,7 @@ const RegisterPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RegisterPage;
+export default RegisterPage

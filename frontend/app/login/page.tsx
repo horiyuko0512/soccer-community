@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import LoginForm from "./LoginForm";
+import React from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import LoginForm from "./LoginForm"
 
 const LoginPage = () => {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <div className="min-h-screen bg-sky-50 flex flex-col">
@@ -29,7 +29,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

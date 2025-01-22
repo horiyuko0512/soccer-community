@@ -1,6 +1,6 @@
-'use client';
+"use client"
 
-import { useMatchesQuery } from "@/graphql/generated/graphql";
+import { useMatchesQuery } from "@/graphql/generated/graphql"
 
 const SamplePage = () => {
   // const [loginMutation, { data, loading, error }] = useLoginMutation({
@@ -28,16 +28,16 @@ const SamplePage = () => {
   //   </div>
   // );
 
-  const { data, loading, error } = useMatchesQuery();
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  const { data, loading, error } = useMatchesQuery()
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
 
   return (
     <div>
       <h1>Sample Page</h1>
       <p>{JSON.stringify(data)}</p>
     </div>
-  );
+  )
 }
 
-export default SamplePage;
+export default SamplePage

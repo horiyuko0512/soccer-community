@@ -1,20 +1,20 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { MatchLevel, useCreateMatchMutation } from "@/graphql/generated/graphql";
-import { createMatchSchema, CreateMatchFormValues } from "./schema";
-import { useRouter } from "next/navigation";
-import { formatDateToISO } from "@/lib/utils";
-import { Loader } from "lucide-react";
+import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { MatchLevel, useCreateMatchMutation } from "@/graphql/generated/graphql"
+import { createMatchSchema, CreateMatchFormValues } from "./schema"
+import { useRouter } from "next/navigation"
+import { formatDateToISO } from "@/lib/utils"
+import { Loader } from "lucide-react"
 
 type FormErrors = {
-  [K in keyof CreateMatchFormValues]?: string;
-};
+  [K in keyof CreateMatchFormValues]?: string
+}
 
 const CreateForm = () => {
   const [formData, setFormData] = useState<CreateMatchFormValues>({
@@ -25,46 +25,46 @@ const CreateForm = () => {
     participants: "",
     fee: "",
     notes: "",
-  });
+  })
 
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [createSuccessful, setCreateSuccessful] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [createSuccessful, setCreateSuccessful] = useState(false)
   const [createMatchMutation, { loading, error }] = useCreateMatchMutation({
     onCompleted: (data) => {
       if (data?.createMatch) {
-        console.log("試合作成成功:", data.createMatch);
-        setCreateSuccessful(true);
+        console.log("試合作成成功:", data.createMatch)
+        setCreateSuccessful(true)
       }
-    }
-  });
-  const router = useRouter();
+    },
+  })
+  const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
+    const { id, value } = e.target
+    setFormData((prev) => ({ ...prev, [id]: value }))
+  }
 
   const handleLevelChange = (level: MatchLevel) => {
-    setFormData((prev) => ({ ...prev, level }));
-  };
+    setFormData((prev) => ({ ...prev, level }))
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const validationResult = createMatchSchema.safeParse(formData);
+    const validationResult = createMatchSchema.safeParse(formData)
     if (!validationResult.success) {
-      const validationErrors: FormErrors = {};
+      const validationErrors: FormErrors = {}
       validationResult.error.errors.forEach((err) => {
-        if (err.path[0]) validationErrors[err.path[0] as keyof CreateMatchFormValues] = err.message;
-      });
-      setErrors(validationErrors);
-      return;
+        if (err.path[0]) validationErrors[err.path[0] as keyof CreateMatchFormValues] = err.message
+      })
+      setErrors(validationErrors)
+      return
     }
 
-    setErrors({});
+    setErrors({})
 
     try {
-      const formattedDate = formatDateToISO(formData.date);
+      const formattedDate = formatDateToISO(formData.date)
 
       await createMatchMutation({
         variables: {
@@ -74,21 +74,21 @@ const CreateForm = () => {
             participants: parseInt(formData.participants, 10),
             fee: parseInt(formData.fee, 10),
             level: formData.level,
-            creatorID: ""
+            creatorID: "",
           },
         },
-      });
-      router.push("/matches");
+      })
+      router.push("/matches")
     } catch (err) {
-      console.error("試合作成エラー:", err);
+      console.error("試合作成エラー:", err)
     }
-  };
+  }
 
   const levelOptions = [
-    { id: MatchLevel.Beginner, label: '初級' },
-    { id: MatchLevel.Intermediate, label: '中級' },
-    { id: MatchLevel.Advanced, label: '上級' },
-  ];
+    { id: MatchLevel.Beginner, label: "初級" },
+    { id: MatchLevel.Intermediate, label: "中級" },
+    { id: MatchLevel.Advanced, label: "上級" },
+  ]
 
   return (
     <Card>
@@ -96,22 +96,40 @@ const CreateForm = () => {
         <CardTitle className="text-xl text-sky-900">試合情報入力</CardTitle>
       </CardHeader>
       <CardContent>
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form
+          className="space-y-6"
+          onSubmit={handleSubmit}
+        >
           <div className="space-y-2">
             <Label htmlFor="title">タイトル</Label>
-            <Input id="title" placeholder="例：エンジョイフットサル" value={formData.title} onChange={handleChange} />
+            <Input
+              id="title"
+              placeholder="例：エンジョイフットサル"
+              value={formData.title}
+              onChange={handleChange}
+            />
             {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="date">開催日時</Label>
-            <Input id="date" type="datetime-local" value={formData.date} onChange={handleChange} />
+            <Input
+              id="date"
+              type="datetime-local"
+              value={formData.date}
+              onChange={handleChange}
+            />
             {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="location">場所</Label>
-            <Input id="location" placeholder="例：渋谷区スポーツセンター" value={formData.location} onChange={handleChange} />
+            <Input
+              id="location"
+              placeholder="例：渋谷区スポーツセンター"
+              value={formData.location}
+              onChange={handleChange}
+            />
             {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
           </div>
 
@@ -126,9 +144,10 @@ const CreateForm = () => {
                   className={`
                     px-4 py-2 rounded-md text-sm border
                     transition-all duration-200
-                    ${formData.level === item.id
-                      ? 'border-sky-500 bg-sky-50 text-sky-700'
-                      : 'border-gray-300 bg-white hover:bg-gray-50'
+                    ${
+                      formData.level === item.id
+                        ? "border-sky-500 bg-sky-50 text-sky-700"
+                        : "border-gray-300 bg-white hover:bg-gray-50"
                     }
                   `}
                 >
@@ -141,30 +160,59 @@ const CreateForm = () => {
 
           <div className="space-y-2">
             <Label htmlFor="participants">募集人数</Label>
-            <Input id="participants" type="number" value={formData.participants} onChange={handleChange} placeholder="例：4"/>
+            <Input
+              id="participants"
+              type="number"
+              value={formData.participants}
+              onChange={handleChange}
+              placeholder="例：4"
+            />
             {errors.participants && <p className="text-red-500 text-sm">{errors.participants}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="fee">参加費</Label>
-            <Input id="fee" type="number" value={formData.fee} onChange={handleChange} placeholder="例：1000"/>
+            <Input
+              id="fee"
+              type="number"
+              value={formData.fee}
+              onChange={handleChange}
+              placeholder="例：1000"
+            />
             {errors.fee && <p className="text-red-500 text-sm">{errors.fee}</p>}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="notes">備考</Label>
-            <Textarea id="notes" value={formData.notes} onChange={handleChange} placeholder="持ち物や注意事項など"/>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              placeholder="持ち物や注意事項など"
+            />
             {errors.notes && <p className="text-red-500 text-sm">{errors.notes}</p>}
           </div>
 
-          <Button type="submit" className="w-full bg-sky-500 hover:bg-sky-600" disabled={loading}>
-          {loading ? <Loader className="animate-spin" /> : createSuccessful ? "作成完了" : "試合を作成する"}
+          <Button
+            type="submit"
+            className="w-full bg-sky-500 hover:bg-sky-600"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader className="animate-spin" />
+            ) : createSuccessful ? (
+              "作成完了"
+            ) : (
+              "試合を作成する"
+            )}
           </Button>
-          {error && <p className="text-red-500 text-sm">エラーが発生しました。もう一度お試しください。</p>}
+          {error && (
+            <p className="text-red-500 text-sm">エラーが発生しました。もう一度お試しください。</p>
+          )}
         </form>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
-export default CreateForm;
+export default CreateForm

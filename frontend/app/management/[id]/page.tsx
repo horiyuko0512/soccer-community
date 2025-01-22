@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Header from '@/components/Header';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import Header from "@/components/Header"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,24 +16,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useRouter } from 'next/navigation';
+} from "@/components/ui/alert-dialog"
+import { useRouter } from "next/navigation"
 
 const ManagementPage = () => {
-  const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
-  const [showApproveDialog, setShowApproveDialog] = useState(false);
-  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const router = useRouter()
+  const [isEditing, setIsEditing] = useState(false)
+  const [showApproveDialog, setShowApproveDialog] = useState(false)
+  const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [match, setMatch] = useState<{
-    title: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    location: string;
-    level: 'beginner' | 'intermediate' | 'advanced';
-    capacity: number;
-    fee: number;
-    description: string;
+    title: string
+    date: string
+    startTime: string
+    endTime: string
+    location: string
+    level: "beginner" | "intermediate" | "advanced"
+    capacity: number
+    fee: number
+    description: string
   }>({
     title: "エンジョイフットサル",
     date: "2023-12-31",
@@ -43,47 +43,47 @@ const ManagementPage = () => {
     level: "intermediate",
     capacity: 4,
     fee: 1000,
-    description: "持ち物：運動靴、動きやすい服装"
-  });
+    description: "持ち物：運動靴、動きやすい服装",
+  })
 
   const levelLabels = {
-    'beginner': '初級',
-    'intermediate': '中級',
-    'advanced': '上級'
-  };
+    beginner: "初級",
+    intermediate: "中級",
+    advanced: "上級",
+  }
 
   const handleSave = () => {
     // ここでAPIを呼び出して保存処理を実行
-    setIsEditing(false);
-  };
+    setIsEditing(false)
+  }
 
   const handleApprove = () => {
-    setShowApproveDialog(true);
-  };
+    setShowApproveDialog(true)
+  }
 
   const handleReject = () => {
-    setShowRejectDialog(true);
-  };
+    setShowRejectDialog(true)
+  }
 
   const confirmApprove = () => {
     // ここでAPIを呼び出して承認処理を実行
-    setShowApproveDialog(false);
-  };
+    setShowApproveDialog(false)
+  }
 
   const confirmReject = () => {
     // ここでAPIを呼び出して却下処理を実行
-    setShowRejectDialog(false);
-  };
+    setShowRejectDialog(false)
+  }
 
   function setLevel(id: string) {
     setMatch((prevMatch) => ({
       ...prevMatch,
-      level: id as 'beginner' | 'intermediate' | 'advanced',
-    }));
+      level: id as "beginner" | "intermediate" | "advanced",
+    }))
   }
   return (
     <div className="min-h-screen bg-sky-50 pb-8">
-      <Header/>
+      <Header />
       <div className="flex justify-between items-center mb-4 mt-6 px-4">
         <h1 className="text-2xl font-bold text-gray-900">試合管理</h1>
         <Button
@@ -160,21 +160,27 @@ const ManagementPage = () => {
                     <Label htmlFor="level">レベル</Label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
-                        { id: 'beginner', label: '初級' },
-                        { id: 'intermediate', label: '中級' },
-                        { id: 'advanced', label: '上級' },
+                        { id: "beginner", label: "初級" },
+                        { id: "intermediate", label: "中級" },
+                        { id: "advanced", label: "上級" },
                       ].map((item) => (
                         <button
                           type="button"
                           key={item.id}
-                          onClick={() => {setMatch({ ...match, level: item.id as 'beginner' | 'intermediate' | 'advanced' });
-                                          setLevel(item.id)}}
+                          onClick={() => {
+                            setMatch({
+                              ...match,
+                              level: item.id as "beginner" | "intermediate" | "advanced",
+                            })
+                            setLevel(item.id)
+                          }}
                           className={`
                             px-4 py-2 rounded-md text-sm border
                             transition-all duration-200
-                            ${match.level === item.id
-                              ? 'border-sky-500 bg-sky-50 text-sky-700'
-                              : 'border-gray-300 bg-white hover:bg-gray-50'
+                            ${
+                              match.level === item.id
+                                ? "border-sky-500 bg-sky-50 text-sky-700"
+                                : "border-gray-300 bg-white hover:bg-gray-50"
                             }
                           `}
                         >
@@ -245,7 +251,7 @@ const ManagementPage = () => {
                   <div>
                     <h2 className="text-lg font-bold text-sky-900">{match.title}</h2>
                     <p className="text-sm text-sky-700 mt-1">
-                      {match.date.replace(/-/g, '/')} {match.startTime}～{match.endTime}
+                      {match.date.replace(/-/g, "/")} {match.startTime}～{match.endTime}
                     </p>
                     <p className="text-sm text-gray-600 mt-2">{match.location}</p>
                     <p className="text-sm text-gray-600 mt-1">レベル: {levelLabels[match.level]}</p>
@@ -298,31 +304,36 @@ const ManagementPage = () => {
       </div>
 
       {/* 承認確認ダイアログ */}
-      <AlertDialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+      <AlertDialog
+        open={showApproveDialog}
+        onOpenChange={setShowApproveDialog}
+      >
         <AlertDialogContent className="sm:max-w-[80%] w-[80%] md:max-w-[610px] rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>参加を承認しますか？</AlertDialogTitle>
-            <AlertDialogDescription>
-              この操作は取り消すことができません。
-            </AlertDialogDescription>
+            <AlertDialogDescription>この操作は取り消すことができません。</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>キャンセル</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmApprove}
-              className="bg-sky-500 hover:bg-sky-600">承認する</AlertDialogAction>
+              className="bg-sky-500 hover:bg-sky-600"
+            >
+              承認する
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       {/* 却下確認ダイアログ */}
-      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+      <AlertDialog
+        open={showRejectDialog}
+        onOpenChange={setShowRejectDialog}
+      >
         <AlertDialogContent className="sm:max-w-[80%] w-[80%] md:max-w-[610px] rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle>参加を却下しますか？</AlertDialogTitle>
-            <AlertDialogDescription>
-              この操作は取り消すことができません。
-            </AlertDialogDescription>
+            <AlertDialogDescription>この操作は取り消すことができません。</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>キャンセル</AlertDialogCancel>
@@ -336,7 +347,7 @@ const ManagementPage = () => {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
-};
+  )
+}
 
-export default ManagementPage;
+export default ManagementPage
