@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
-import MatchesList from "./MatchesList";
-import { useRouter } from "next/navigation";
+import React from "react"
+import { Button } from "@/components/ui/button"
+import Header from "@/components/Header"
+import MatchesList from "./MatchesList"
+import { useRouter } from "next/navigation"
 
 const MatchListPage = () => {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <>
@@ -25,7 +25,7 @@ const MatchListPage = () => {
         <MatchesList />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default MatchListPage;
+export default MatchListPage

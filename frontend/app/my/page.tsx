@@ -1,42 +1,42 @@
-"use client";
+"use client"
 
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import Header from "@/components/Header";
-import { Textarea } from "@/components/ui/textarea";
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Input } from "@/components/ui/input"
+import Header from "@/components/Header"
+import { Textarea } from "@/components/ui/textarea"
+import { useRouter } from "next/navigation"
 
 const MyPage = () => {
-  const router = useRouter();
-  const [isEditing, setIsEditing] = useState(false);
+  const router = useRouter()
+  const [isEditing, setIsEditing] = useState(false)
   const [profile, setProfile] = useState({
     nickname: "サッカー好き太郎",
-    introduction: "週末はよくサッカーをしています！"
-  });
-  const [editedProfile, setEditedProfile] = useState(profile);
+    introduction: "週末はよくサッカーをしています！",
+  })
+  const [editedProfile, setEditedProfile] = useState(profile)
 
   const handleEdit = () => {
-    setIsEditing(true);
-    setEditedProfile(profile);
-  };
+    setIsEditing(true)
+    setEditedProfile(profile)
+  }
 
   const handleSave = () => {
-    setProfile(editedProfile);
-    setIsEditing(false);
+    setProfile(editedProfile)
+    setIsEditing(false)
     // ここで実際のAPI呼び出しを行う
-  };
+  }
 
   const handleCancel = () => {
-    setIsEditing(false);
-    setEditedProfile(profile);
-  };
+    setIsEditing(false)
+    setEditedProfile(profile)
+  }
 
   return (
     <div className="pb-8">
-      <Header/>
+      <Header />
       <div className="flex justify-between items-center mb-4 mt-6 px-4">
         <h1 className="text-2xl font-bold text-gray-900">MyPage</h1>
         <Button
@@ -59,10 +59,12 @@ const MyPage = () => {
                     <h3 className="text-sm font-medium text-sky-700 mb-1">ニックネーム</h3>
                     <Input
                       value={editedProfile.nickname}
-                      onChange={(e) => setEditedProfile({
-                        ...editedProfile,
-                        nickname: e.target.value
-                      })}
+                      onChange={(e) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          nickname: e.target.value,
+                        })
+                      }
                       className="max-w-md"
                     />
                   </div>
@@ -70,10 +72,12 @@ const MyPage = () => {
                     <h3 className="text-sm font-medium text-sky-700 mb-1">自己紹介</h3>
                     <Textarea
                       value={editedProfile.introduction}
-                      onChange={(e) => setEditedProfile({
-                        ...editedProfile,
-                        introduction: e.target.value
-                      })}
+                      onChange={(e) =>
+                        setEditedProfile({
+                          ...editedProfile,
+                          introduction: e.target.value,
+                        })
+                      }
                       className="max-w-md"
                       rows={4}
                     />
@@ -103,7 +107,11 @@ const MyPage = () => {
                     <h3 className="text-sm font-medium text-sky-700 mb-1">自己紹介</h3>
                     <p>{profile.introduction}</p>
                   </div>
-                  <Button variant="outline" className="w-full" onClick={handleEdit}>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleEdit}
+                  >
                     プロフィールを編集
                   </Button>
                 </>
@@ -112,7 +120,10 @@ const MyPage = () => {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="applied" className="w-full">
+        <Tabs
+          defaultValue="applied"
+          className="w-full"
+        >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="applied">応募した試合</TabsTrigger>
             <TabsTrigger value="created">作成した試合</TabsTrigger>
@@ -155,7 +166,7 @@ const MyPage = () => {
         </Tabs>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MyPage;
+export default MyPage

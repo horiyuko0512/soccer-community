@@ -1,39 +1,39 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
-import { useMatchesQuery } from "@/graphql/generated/graphql";
-import { formatToJapaneseDateTime } from "@/lib/utils";
+import React, { useState } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useRouter } from "next/navigation"
+import { useMatchesQuery } from "@/graphql/generated/graphql"
+import { formatToJapaneseDateTime } from "@/lib/utils"
 
 const levels = [
   { id: "beginner", label: "初級" },
   { id: "intermediate", label: "中級" },
   { id: "advanced", label: "上級" },
-];
+]
 
 const MatchesList = () => {
-  const router = useRouter();
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [level, setLevel] = useState("");
-  const [participants, setParticipants] = useState("");
-  const [fee, setFee] = useState("");
+  const router = useRouter()
+  const [date, setDate] = useState("")
+  const [location, setLocation] = useState("")
+  const [level, setLevel] = useState("")
+  const [participants, setParticipants] = useState("")
+  const [fee, setFee] = useState("")
 
-  const { data, loading, error } = useMatchesQuery();
+  const { data, loading, error } = useMatchesQuery()
 
   const handleSearch = () => {
-    console.log({ date, location, level, participants, fee });
-  };
+    console.log({ date, location, level, participants, fee })
+  }
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">Loading...</p>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -43,7 +43,7 @@ const MatchesList = () => {
           エラーが生じました。再度お試しください。
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -128,7 +128,10 @@ const MatchesList = () => {
 
       <div className="space-y-4">
         {data?.matches?.map((match) => (
-          <Card key={match.id} className="hover:shadow-lg transition-shadow">
+          <Card
+            key={match.id}
+            className="hover:shadow-lg transition-shadow"
+          >
             <CardContent className="p-4">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-lg font-bold text-sky-900">{match.title}</h3>
@@ -154,7 +157,7 @@ const MatchesList = () => {
         ))}
       </div>
     </>
-  );
-};
+  )
+}
 
-export default MatchesList;
+export default MatchesList

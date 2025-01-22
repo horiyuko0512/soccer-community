@@ -1,8 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { format } from "date-fns";
-import { toZonedTime } from "date-fns-tz";
-import dayjs from "dayjs";
+import { format } from "date-fns"
+import { toZonedTime } from "date-fns-tz"
+import dayjs from "dayjs"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -15,13 +15,13 @@ export function cn(...inputs: ClassValue[]) {
  */
 export const formatToJapaneseDateTime = (utcDate: Date) => {
   try {
-    const jstDate = toZonedTime(utcDate, "Asia/Tokyo");
-    return format(jstDate, "yyyy年MM月dd日 HH:mm");
+    const jstDate = toZonedTime(utcDate, "Asia/Tokyo")
+    return format(jstDate, "yyyy年MM月dd日 HH:mm")
   } catch (error) {
-    console.error("日付フォーマットエラー:", error);
-    return "不明な日時";
+    console.error("日付フォーマットエラー:", error)
+    return "不明な日時"
   }
-};
+}
 
 /**
  * 日付をISO 8601形式 (YYYY-MM-DDTHH:mm:ssZ) に変換するユーティリティ関数
@@ -29,5 +29,5 @@ export const formatToJapaneseDateTime = (utcDate: Date) => {
  * @returns ISO 8601形式の文字列
  */
 export const formatDateToISO = (date: string): string => {
-  return dayjs(date).toISOString();
-};
+  return dayjs(date).toISOString()
+}
