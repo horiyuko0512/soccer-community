@@ -70,10 +70,42 @@ query Participations {
   }
 }
 
+# 特定のユーザーと特定の試合の関係閲覧用
 query ParicipationByUserIdAndMatchId($matchID: ID!) {
   participantonByUserIdAndMatchId(matchID: $matchID) {
     id
     status
+  }
+}
+
+# 応募済み試合一覧確認用
+query ParticipationsByUserId {
+  participationsByUserId {
+    id
+    userID
+    matchID
+    status
+    match {
+      id
+      title
+      date
+      location
+    }
+  }
+}
+
+# 試合管理用
+query ParticipationsByMatchId($matchID: ID!) {
+  participationsByMatchId(matchID: $matchID) {
+    id
+    userID
+    matchID
+    status
+    user {
+      id
+      nickname
+      introduction
+    }
   }
 }
 

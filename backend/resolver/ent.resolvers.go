@@ -374,9 +374,73 @@ func (r *queryResolver) ParticipantonByUserIDAndMatchID(ctx context.Context, mat
 		return nil, fmt.Errorf("failed getting participation: %w", err)
 	}
 	return &model.Participation{
-		ID:      participation.ID.String(),
-		Status:  participation.Status,
+		ID:     participation.ID.String(),
+		Status: participation.Status,
 	}, nil
+}
+
+// ParticipationsByUserID is the resolver for the participationsByUserId field.
+func (r *queryResolver) ParticipationsByUserID(ctx context.Context) ([]*model.Participation, error) {
+	userId, ok := ctx.Value(middleware.UserIdKey).(string)
+	if !ok {
+		return nil, fmt.Errorf("Unauthorized")
+	}
+	participations, err := r.client.Participation.Query().
+		Where(participation.HasUserWith(user.ID(uuid.MustParse(userId)))).
+		WithMatch().
+		Order(ent.Desc(participation.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying participations: %w", err)
+	}
+
+	var result []*model.Participation
+	for _, participation := range participations {
+		result = append(result, &model.Participation{
+			ID:      participation.ID.String(),
+			UserID:  participation.UserID.String(),
+			MatchID: participation.MatchID.String(),
+			Status:  participation.Status,
+			Match: &model.Match{
+				ID:           participation.Edges.Match.ID.String(),
+				Title:        participation.Edges.Match.Title,
+				Date:         participation.Edges.Match.Date,
+				Location:     participation.Edges.Match.Location,
+			},
+		})
+	}
+	return result, nil
+}
+
+// ParticipationsByMatchID is the resolver for the participationsByMatchId field.
+func (r *queryResolver) ParticipationsByMatchID(ctx context.Context, matchID string) ([]*model.Participation, error) {
+	_, ok := ctx.Value(middleware.UserIdKey).(string)
+	if !ok {
+		return nil, fmt.Errorf("Unauthorized")
+	}
+	participations, err := r.client.Participation.Query().
+	Where(participation.HasMatchWith(match.ID(uuid.MustParse(matchID)))).
+	WithUser().
+	Order(ent.Desc(participation.FieldCreatedAt)).
+	All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying participations: %w", err)
+	}
+
+	var result []*model.Participation
+	for _, participation := range participations {
+		result = append(result, &model.Participation{
+			ID:      participation.ID.String(),
+			UserID:  participation.UserID.String(),
+			Status:  participation.Status,
+			User: &model.User{
+				ID:           participation.Edges.User.ID.String(),
+				NickName:     participation.Edges.User.NickName,
+				Introduction: participation.Edges.User.Introduction,
+			},
+		})
+	}
+	return result, nil
 }
 
 // User is the resolver for the user field.
