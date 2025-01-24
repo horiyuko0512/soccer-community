@@ -384,6 +384,7 @@ type Query {
   matches: [Match!]!
   participation(id: ID!): Participation!
   participations: [Participation!]!
+  participantonByUserIdAndMatchId(matchID: ID!): Participation!
   user(id: ID!): User!
   users: [User!]!
 }
