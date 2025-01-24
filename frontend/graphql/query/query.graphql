@@ -70,6 +70,13 @@ query Participations {
   }
 }
 
+query ParicipationByUserIdAndMatchId($matchID: ID!) {
+  participantonByUserIdAndMatchId(matchID: $matchID) {
+    id
+    status
+  }
+}
+
 # 特定のノードを取得
 query Node($id: ID!) {
   node(id: $id) {

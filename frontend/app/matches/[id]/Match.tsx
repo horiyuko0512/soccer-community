@@ -17,6 +17,7 @@ import {
   ParticipationStatus,
   useCreateParticipationMutation,
   useMatchQuery,
+  useParicipationByUserIdAndMatchIdQuery,
 } from "@/graphql/generated/graphql"
 import { formatToJapaneseDateTime } from "@/lib/utils"
 import { useState } from "react"
@@ -37,6 +38,11 @@ const Match = ({ id }: MatchProps) => {
     variables: { id },
   })
 
+  const { data: participationData, loading: participationLoading } =
+    useParicipationByUserIdAndMatchIdQuery({
+      variables: { matchID: id },
+    })
+
   const [createParticipation] = useCreateParticipationMutation()
 
   const router = useRouter()
@@ -44,7 +50,7 @@ const Match = ({ id }: MatchProps) => {
   const [isApplying, setIsApplying] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  if (loading) {
+  if (loading || participationLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">Loading...</p>
@@ -68,6 +74,7 @@ const Match = ({ id }: MatchProps) => {
 
   const match = data.matche
   const formattedDate = formatToJapaneseDateTime(match.date)
+  const isAlreadyApplied = !!participationData?.participantonByUserIdAndMatchId
 
   const handleApply = () => {
     setShowApplyDialog(true)
@@ -132,15 +139,17 @@ const Match = ({ id }: MatchProps) => {
               </div>
             )}
             <Button
-              className={`w-full ${match.isApplied ? "bg-sky-500 hover:bg-sky-600" : "bg-gray-500 cursor-not-allowed"}`}
-              onClick={handleApply}
-              disabled={!match.isApplied || isApplying}
+              className={`w-full ${match.isApplied || !isAlreadyApplied ? "bg-sky-500 hover:bg-sky-600" : "bg-gray-500 cursor-not-allowed"}`}
+              disabled={isAlreadyApplied || !match.isApplied || isApplying}
+              onClick={isAlreadyApplied ? undefined : handleApply}
             >
-              {isApplying
-                ? "応募中..."
-                : match.isApplied
-                  ? "この試合に応募する"
-                  : "この応募は停止中です"}
+              {isAlreadyApplied
+                ? "この試合は応募済みです"
+                : isApplying
+                  ? "応募中..."
+                  : match.isApplied
+                    ? "この試合に応募する"
+                    : "この応募は停止中です"}
             </Button>
           </div>
         </CardContent>
