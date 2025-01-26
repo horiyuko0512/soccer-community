@@ -98,6 +98,7 @@ type ComplexityRoot struct {
 	Query struct {
 		Matche                          func(childComplexity int, id string) int
 		Matches                         func(childComplexity int) int
+		MatchesByCreatorID              func(childComplexity int) int
 		Node                            func(childComplexity int, id string) int
 		Nodes                           func(childComplexity int, ids []string) int
 		ParticipantonByUserIDAndMatchID func(childComplexity int, matchID string) int
@@ -105,7 +106,7 @@ type ComplexityRoot struct {
 		Participations                  func(childComplexity int) int
 		ParticipationsByMatchID         func(childComplexity int, matchID string) int
 		ParticipationsByUserID          func(childComplexity int) int
-		User                            func(childComplexity int, id string) int
+		User                            func(childComplexity int) int
 		Users                           func(childComplexity int) int
 	}
 
@@ -136,12 +137,13 @@ type QueryResolver interface {
 	Nodes(ctx context.Context, ids []string) ([]ent.Noder, error)
 	Matche(ctx context.Context, id string) (*model.Match, error)
 	Matches(ctx context.Context) ([]*model.Match, error)
+	MatchesByCreatorID(ctx context.Context) ([]*model.Match, error)
 	Participation(ctx context.Context, id string) (*model.Participation, error)
 	Participations(ctx context.Context) ([]*model.Participation, error)
 	ParticipantonByUserIDAndMatchID(ctx context.Context, matchID string) (*model.Participation, error)
 	ParticipationsByUserID(ctx context.Context) ([]*model.Participation, error)
 	ParticipationsByMatchID(ctx context.Context, matchID string) ([]*model.Participation, error)
-	User(ctx context.Context, id string) (*model.User, error)
+	User(ctx context.Context) (*model.User, error)
 	Users(ctx context.Context) ([]*model.User, error)
 }
 
@@ -449,6 +451,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Matches(childComplexity), true
 
+	case "Query.matchesByCreatorId":
+		if e.complexity.Query.MatchesByCreatorID == nil {
+			break
+		}
+
+		return e.complexity.Query.MatchesByCreatorID(childComplexity), true
+
 	case "Query.node":
 		if e.complexity.Query.Node == nil {
 			break
@@ -528,12 +537,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_user_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.User(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.User(childComplexity), true
 
 	case "Query.users":
 		if e.complexity.Query.Users == nil {
@@ -1103,12 +1107,13 @@ type Query {
   ): [Node]!
   matche(id: ID!): Match!
   matches: [Match!]!
+  matchesByCreatorId: [Match!]!
   participation(id: ID!): Participation!
   participations: [Participation!]!
   participantonByUserIdAndMatchId(matchID: ID!): Participation!
   participationsByUserId: [Participation!]!
   participationsByMatchId(matchID: ID!): [Participation!]!
-  user(id: ID!): User!
+  user: User!
   users: [User!]!
 }
 type Mutation {
@@ -1674,29 +1679,6 @@ func (ec *executionContext) field_Query_participationsByMatchId_argsMatchID(
 ) (string, error) {
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("matchID"))
 	if tmp, ok := rawArgs["matchID"]; ok {
-		return ec.unmarshalNID2string(ctx, tmp)
-	}
-
-	var zeroVal string
-	return zeroVal, nil
-}
-
-func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := ec.field_Query_user_argsID(ctx, rawArgs)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-func (ec *executionContext) field_Query_user_argsID(
-	ctx context.Context,
-	rawArgs map[string]any,
-) (string, error) {
-	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-	if tmp, ok := rawArgs["id"]; ok {
 		return ec.unmarshalNID2string(ctx, tmp)
 	}
 
@@ -3768,6 +3750,80 @@ func (ec *executionContext) fieldContext_Query_matches(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_matchesByCreatorId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_matchesByCreatorId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().MatchesByCreatorID(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Match)
+	fc.Result = res
+	return ec.marshalNMatch2ᚕᚖgithubᚗcomᚋhoriyuko0512ᚋsoccerᚑcommunityᚋresolverᚋmodelᚐMatchᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_matchesByCreatorId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Match_id(ctx, field)
+			case "title":
+				return ec.fieldContext_Match_title(ctx, field)
+			case "date":
+				return ec.fieldContext_Match_date(ctx, field)
+			case "location":
+				return ec.fieldContext_Match_location(ctx, field)
+			case "level":
+				return ec.fieldContext_Match_level(ctx, field)
+			case "participants":
+				return ec.fieldContext_Match_participants(ctx, field)
+			case "fee":
+				return ec.fieldContext_Match_fee(ctx, field)
+			case "notes":
+				return ec.fieldContext_Match_notes(ctx, field)
+			case "creatorID":
+				return ec.fieldContext_Match_creatorID(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Match_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Match_updatedAt(ctx, field)
+			case "isApplied":
+				return ec.fieldContext_Match_isApplied(ctx, field)
+			case "creator":
+				return ec.fieldContext_Match_creator(ctx, field)
+			case "matchParticipation":
+				return ec.fieldContext_Match_matchParticipation(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Match", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_participation(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_participation(ctx, field)
 	if err != nil {
@@ -4125,7 +4181,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().User(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().User(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4142,7 +4198,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	return ec.marshalNUser2ᚖgithubᚗcomᚋhoriyuko0512ᚋsoccerᚑcommunityᚋresolverᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -4171,17 +4227,6 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_user_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -9195,6 +9240,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_matches(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "matchesByCreatorId":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_matchesByCreatorId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
