@@ -1,9 +1,7 @@
-# 特定のユーザー閲覧用
-query User($id: ID!) {
-  user(id: $id) {
-    id
+# 特定のユーザー(本人)閲覧用
+query User {
+  user {
     nickname
-    email
     introduction
   }
 }
@@ -47,6 +45,16 @@ query Matches {
     notes
     creatorID
     isApplied
+  }
+}
+
+# 作成した試合閲覧用
+query MatchesByCreatorId {
+  matchesByCreatorId {
+    id
+    title
+    date
+    location
   }
 }
 

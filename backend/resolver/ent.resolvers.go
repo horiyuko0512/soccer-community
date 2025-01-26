@@ -315,6 +315,32 @@ func (r *queryResolver) Matches(ctx context.Context) ([]*model.Match, error) {
 	return result, nil
 }
 
+// MatchesByCreatorID is the resolver for the matchesByCreatorId field.
+func (r *queryResolver) MatchesByCreatorID(ctx context.Context) ([]*model.Match, error) {
+	userId, ok := ctx.Value(middleware.UserIdKey).(string)
+	if !ok {
+		return nil, fmt.Errorf("Unauthorized")
+	}
+	matches, err := r.client.Match.Query().
+		Where(match.HasCreatorWith(user.ID(uuid.MustParse(userId)))).
+		Order(ent.Desc(match.FieldCreatedAt)).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed querying matches: %w", err)
+	}
+
+	var result []*model.Match
+	for _, match := range matches {
+		result = append(result, &model.Match{
+			ID:           match.ID.String(),
+			Title:        match.Title,
+			Date:         match.Date,
+			Location:     match.Location,
+		})
+	}
+	return result, nil
+}
+
 // Participation is the resolver for the participation field.
 func (r *queryResolver) Participation(ctx context.Context, id string) (*model.Participation, error) {
 	_, ok := ctx.Value(middleware.UserIdKey).(string)
@@ -402,10 +428,10 @@ func (r *queryResolver) ParticipationsByUserID(ctx context.Context) ([]*model.Pa
 			MatchID: participation.MatchID.String(),
 			Status:  participation.Status,
 			Match: &model.Match{
-				ID:           participation.Edges.Match.ID.String(),
-				Title:        participation.Edges.Match.Title,
-				Date:         participation.Edges.Match.Date,
-				Location:     participation.Edges.Match.Location,
+				ID:       participation.Edges.Match.ID.String(),
+				Title:    participation.Edges.Match.Title,
+				Date:     participation.Edges.Match.Date,
+				Location: participation.Edges.Match.Location,
 			},
 		})
 	}
@@ -419,10 +445,10 @@ func (r *queryResolver) ParticipationsByMatchID(ctx context.Context, matchID str
 		return nil, fmt.Errorf("Unauthorized")
 	}
 	participations, err := r.client.Participation.Query().
-	Where(participation.HasMatchWith(match.ID(uuid.MustParse(matchID)))).
-	WithUser().
-	Order(ent.Desc(participation.FieldCreatedAt)).
-	All(ctx)
+		Where(participation.HasMatchWith(match.ID(uuid.MustParse(matchID)))).
+		WithUser().
+		Order(ent.Desc(participation.FieldCreatedAt)).
+		All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed querying participations: %w", err)
 	}
@@ -430,9 +456,9 @@ func (r *queryResolver) ParticipationsByMatchID(ctx context.Context, matchID str
 	var result []*model.Participation
 	for _, participation := range participations {
 		result = append(result, &model.Participation{
-			ID:      participation.ID.String(),
-			UserID:  participation.UserID.String(),
-			Status:  participation.Status,
+			ID:     participation.ID.String(),
+			UserID: participation.UserID.String(),
+			Status: participation.Status,
 			User: &model.User{
 				ID:           participation.Edges.User.ID.String(),
 				NickName:     participation.Edges.User.NickName,
@@ -444,19 +470,17 @@ func (r *queryResolver) ParticipationsByMatchID(ctx context.Context, matchID str
 }
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	_, ok := ctx.Value(middleware.UserIdKey).(string)
+func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
+	userId, ok := ctx.Value(middleware.UserIdKey).(string)
 	if !ok {
 		return nil, fmt.Errorf("Unauthorized")
 	}
-	user, err := r.client.User.Get(ctx, uuid.MustParse(id))
+	user, err := r.client.User.Get(ctx, uuid.MustParse(userId))
 	if err != nil {
 		return nil, fmt.Errorf("failed getting user: %w", err)
 	}
 	return &model.User{
-		ID:           user.ID.String(),
 		NickName:     user.NickName,
-		Email:        user.Email,
 		Introduction: user.Introduction,
 	}, nil
 }
