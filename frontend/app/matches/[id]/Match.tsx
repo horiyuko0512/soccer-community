@@ -17,7 +17,7 @@ import {
   ParticipationStatus,
   useCreateParticipationMutation,
   useMatchQuery,
-  useParicipationByUserIdAndMatchIdQuery,
+  useParticipationByUserIdAndMatchIdQuery,
 } from "@/graphql/generated/graphql"
 import { formatToJapaneseDateTime } from "@/lib/utils"
 import { useState } from "react"
@@ -39,7 +39,7 @@ const Match = ({ id }: MatchProps) => {
   })
 
   const { data: participationData, loading: participationLoading } =
-    useParicipationByUserIdAndMatchIdQuery({
+    useParticipationByUserIdAndMatchIdQuery({
       variables: { matchID: id },
     })
 
@@ -74,7 +74,7 @@ const Match = ({ id }: MatchProps) => {
 
   const match = data.matche
   const formattedDate = formatToJapaneseDateTime(match.date)
-  const isAlreadyApplied = !!participationData?.participantonByUserIdAndMatchId
+  const isAlreadyApplied = participationData?.participationByUserIdAndMatchId
 
   const handleApply = () => {
     setShowApplyDialog(true)

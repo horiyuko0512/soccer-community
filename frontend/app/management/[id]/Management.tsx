@@ -1,7 +1,14 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { useMatchQuery, useUpdateMatchMutation, useParticipationsByMatchIdQuery, useUpdateParticipationMutation, MatchLevel, ParticipationStatus } from "@/graphql/generated/graphql"
+import {
+  useMatchQuery,
+  useUpdateMatchMutation,
+  useParticipationsByMatchIdQuery,
+  useUpdateParticipationMutation,
+  MatchLevel,
+  ParticipationStatus,
+} from "@/graphql/generated/graphql"
 import { updateMatchSchema, UpdateMatchFormValues } from "./schema"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -42,8 +49,16 @@ const status = {
 }
 
 const Management = ({ id }: MatchProps) => {
-  const { data: matchData, loading: matchLoading, error: matchError } = useMatchQuery({ variables: { id } })
-  const { data: participationsData, loading: participationsLoading, error: participationsError } = useParticipationsByMatchIdQuery({ variables: { matchID: id } })
+  const {
+    data: matchData,
+    loading: matchLoading,
+    error: matchError,
+  } = useMatchQuery({ variables: { id } })
+  const {
+    data: participationsData,
+    loading: participationsLoading,
+    error: participationsError,
+  } = useParticipationsByMatchIdQuery({ variables: { matchID: id } })
   const [updateMatchMutation] = useUpdateMatchMutation()
   const [updateParticipationMutation] = useUpdateParticipationMutation()
 
@@ -182,150 +197,186 @@ const Management = ({ id }: MatchProps) => {
   return (
     <div className="container mx-auto px-4">
       <Card className="mb-6">
-      {isEditing ? (
-        <>
-          <CardHeader>
-            <CardTitle className="text-xl text-sky-900">試合情報編集</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <Label htmlFor="title">タイトル</Label>
-                <Input id="title" value={formData.title} onChange={handleChange} />
-                {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
-              </div>
+        {isEditing ? (
+          <>
+            <CardHeader>
+              <CardTitle className="text-xl text-sky-900">試合情報編集</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                className="space-y-6"
+                onSubmit={handleSubmit}
+              >
+                <div className="space-y-2">
+                  <Label htmlFor="title">タイトル</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                  />
+                  {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="date">開催日時</Label>
-                <Input id="date" type="datetime-local" value={formatDateToISO(formData.date)} onChange={handleChange} />
-                {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="date">開催日時</Label>
+                  <Input
+                    id="date"
+                    type="datetime-local"
+                    value={formatDateToISO(formData.date)}
+                    onChange={handleChange}
+                  />
+                  {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="location">場所</Label>
-                <Input id="location" value={formData.location} onChange={handleChange} />
-                {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">場所</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={handleChange}
+                  />
+                  {errors.location && <p className="text-red-500 text-sm">{errors.location}</p>}
+                </div>
 
-              <div className="space-y-2">
-                <Label>レベル</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {levels.map((level) => (
-                    <button
-                      key={level.id}
-                      type="button"
-                      onClick={() => handleLevelChange(level.id)}
-                      className={`
+                <div className="space-y-2">
+                  <Label>レベル</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {levels.map((level) => (
+                      <button
+                        key={level.id}
+                        type="button"
+                        onClick={() => handleLevelChange(level.id)}
+                        className={`
                         px-4 py-2 rounded-md text-sm border
                         transition-all duration-200
                         ${formData.level === level.id ? "border-sky-500 bg-sky-50 text-sky-700" : "border-gray-300 bg-white hover:bg-gray-50"}
                       `}
-                    >
-                      {levels.find((item) => item.id === level.id)?.label}
-                    </button>
-                  ))}
+                      >
+                        {levels.find((item) => item.id === level.id)?.label}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.level && <p className="text-red-500 text-sm">{errors.level}</p>}
                 </div>
-                {errors.level && <p className="text-red-500 text-sm">{errors.level}</p>}
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="participants">募集人数</Label>
-                <Input id="participants" type="number" value={formData.participants} onChange={handleChange} />
-                {errors.participants && <p className="text-red-500 text-sm">{errors.participants}</p>}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="participants">募集人数</Label>
+                  <Input
+                    id="participants"
+                    type="number"
+                    value={formData.participants}
+                    onChange={handleChange}
+                  />
+                  {errors.participants && (
+                    <p className="text-red-500 text-sm">{errors.participants}</p>
+                  )}
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="fee">参加費</Label>
-                <Input id="fee" type="number" value={formData.fee} onChange={handleChange} />
-                {errors.fee && <p className="text-red-500 text-sm">{errors.fee}</p>}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fee">参加費</Label>
+                  <Input
+                    id="fee"
+                    type="number"
+                    value={formData.fee}
+                    onChange={handleChange}
+                  />
+                  {errors.fee && <p className="text-red-500 text-sm">{errors.fee}</p>}
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="notes">備考</Label>
-                <Textarea id="notes" value={formData.notes} onChange={handleChange} />
-                {errors.notes && <p className="text-red-500 text-sm">{errors.notes}</p>}
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="notes">備考</Label>
+                  <Textarea
+                    id="notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                  />
+                  {errors.notes && <p className="text-red-500 text-sm">{errors.notes}</p>}
+                </div>
 
-              <div className="flex space-x-2">
+                <div className="flex space-x-2">
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-sky-500 hover:bg-sky-600"
+                  >
+                    保存
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1"
+                  >
+                    キャンセル
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </>
+        ) : (
+          <>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-sky-900">{matchData?.matche.title}</h2>
+                  <p className="text-sm text-sky-700 mt-1">
+                    {formatToJapaneseDateTime(matchData?.matche.date)}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-2">{matchData?.matche.location}</p>
+                  <p className="text-sm text-gray-600 mt-1">
+                    レベル: {levels.find((item) => item.id === matchData?.matche.level)?.label}
+                  </p>
+                  <p className="text-sm text-gray-600 mt-1">募集人数: {formData.participants}人</p>
+                  <p className="text-sm text-gray-600">参加費: {formData.fee}円</p>
+                  <p className="text-sm text-gray-600 mt-1">{formData.notes}</p>
+                </div>
                 <Button
-                  type="submit"
-                  className="flex-1 bg-sky-500 hover:bg-sky-600"
-                >
-                  保存
-                </Button>
-                <Button
-                  type="button"
                   variant="outline"
-                  onClick={() => setIsEditing(false)}
-                  className="flex-1"
+                  onClick={() => setIsEditing(true)}
+                  className="ml-4"
                 >
-                  キャンセル
+                  編集
                 </Button>
               </div>
-            </form>
-          </CardContent>
-        </>
-      ) : (
-        <>
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h2 className="text-lg font-bold text-sky-900">{matchData?.matche.title}</h2>
-                <p className="text-sm text-sky-700 mt-1">
-                  {formatToJapaneseDateTime(matchData?.matche.date)}
-                </p>
-                <p className="text-sm text-gray-600 mt-2">{matchData?.matche.location}</p>
-                <p className="text-sm text-gray-600 mt-1">レベル: {levels.find((item) => item.id === matchData?.matche.level)?.label}</p>
-                <p className="text-sm text-gray-600 mt-1">募集人数: {formData.participants}人</p>
-                <p className="text-sm text-gray-600">参加費: {formData.fee}円</p>
-                <p className="text-sm text-gray-600 mt-1">{formData.notes}</p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => setIsEditing(true)}
-                className="ml-4"
-              >
-                編集
-              </Button>
-            </div>
-          </CardContent>
-        </>
-      )}
-    </Card>
+            </CardContent>
+          </>
+        )}
+      </Card>
 
-    <div className="space-y-4 mt-8">
-      {participationsData?.participationsByMatchId.map((participation) => (
-        <Card key={participation.id}>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">{participation.user.nickname}</h3>
-                <p className="text-sm text-gray-600">ステータス: {status[participation.status]}</p>
+      <div className="space-y-4 mt-8">
+        {participationsData?.participationsByMatchId.map((participation) => (
+          <Card key={participation.id}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium">{participation.user.nickname}</h3>
+                  <p className="text-sm text-gray-600">
+                    ステータス: {status[participation.status]}
+                  </p>
                 </div>
                 <div className="flex space-x-2">
-                <Button
-                  variant="outline"
-                  className="bg-white hover:bg-red-50 text-red-600 border-red-200"
-                  onClick={() => handleReject(participation.id)}
-                  disabled={participation.status !== "pending"}
-                >
-                  却下
-                </Button>
-                <Button
-                  className="bg-sky-500 hover:bg-sky-600"
-                  onClick={() => handleApprove(participation.id)}
-                  disabled={participation.status !== "pending"}
-                >
-                  承認
-                </Button>
+                  <Button
+                    variant="outline"
+                    className="bg-white hover:bg-red-50 text-red-600 border-red-200"
+                    onClick={() => handleReject(participation.id)}
+                    disabled={participation.status !== "pending"}
+                  >
+                    却下
+                  </Button>
+                  <Button
+                    className="bg-sky-500 hover:bg-sky-600"
+                    onClick={() => handleApprove(participation.id)}
+                    disabled={participation.status !== "pending"}
+                  >
+                    承認
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-    {/* 承認確認ダイアログ */}
+      {/* 承認確認ダイアログ */}
       <AlertDialog
         open={showApproveDialog}
         onOpenChange={setShowApproveDialog}

@@ -332,10 +332,10 @@ func (r *queryResolver) MatchesByCreatorID(ctx context.Context) ([]*model.Match,
 	var result []*model.Match
 	for _, match := range matches {
 		result = append(result, &model.Match{
-			ID:           match.ID.String(),
-			Title:        match.Title,
-			Date:         match.Date,
-			Location:     match.Location,
+			ID:       match.ID.String(),
+			Title:    match.Title,
+			Date:     match.Date,
+			Location: match.Location,
 		})
 	}
 	return result, nil
@@ -386,23 +386,22 @@ func (r *queryResolver) Participations(ctx context.Context) ([]*model.Participat
 	return result, nil
 }
 
-// ParticipantonByUserIDAndMatchID is the resolver for the participantonByUserIdAndMatchId field.
-func (r *queryResolver) ParticipantonByUserIDAndMatchID(ctx context.Context, matchID string) (*model.Participation, error) {
+// ParticipationByUserIDAndMatchID is the resolver for the participationByUserIdAndMatchId field.
+func (r *queryResolver) ParticipationByUserIDAndMatchID(ctx context.Context, matchID string) (bool, error) {
 	userId, ok := ctx.Value(middleware.UserIdKey).(string)
 	if !ok {
-		return nil, fmt.Errorf("Unauthorized")
+		return false, fmt.Errorf("Unauthorized")
 	}
-	participation, err := r.client.Participation.Query().
-		Where(participation.HasUserWith(user.ID(uuid.MustParse(userId)))).
-		Where(participation.HasMatchWith(match.ID(uuid.MustParse(matchID)))).
-		Only(ctx)
+	exists, err := r.client.Participation.Query().
+		Where(participation.And(
+			participation.HasUserWith(user.ID(uuid.MustParse(userId))),
+			participation.HasMatchWith(match.ID(uuid.MustParse(matchID))),
+		)).
+		Exist(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed getting participation: %w", err)
+		return false, fmt.Errorf("failed querying participation: %w", err)
 	}
-	return &model.Participation{
-		ID:     participation.ID.String(),
-		Status: participation.Status,
-	}, nil
+	return exists, nil
 }
 
 // ParticipationsByUserID is the resolver for the participationsByUserId field.
