@@ -58,9 +58,13 @@ const Management = ({ id }: MatchProps) => {
     data: participationsData,
     loading: participationsLoading,
     error: participationsError,
-  } = useParticipationsByMatchIdQuery({ variables: { matchID: id } })
-  const [updateMatchMutation] = useUpdateMatchMutation()
-  const [updateParticipationMutation] = useUpdateParticipationMutation()
+  } = useParticipationsByMatchIdQuery({
+    variables: { matchID: id },
+    skip: !matchData?.matche,
+  })
+  const [updateMatchMutation, { error: matchMutationError }] = useUpdateMatchMutation()
+  const [updateParticipationMutation, { error: participationMutationError }] =
+    useUpdateParticipationMutation()
 
   const [formData, setFormData] = useState<UpdateMatchFormValues>({
     title: "",
@@ -186,7 +190,7 @@ const Management = ({ id }: MatchProps) => {
     )
   }
 
-  if (matchError || participationsError) {
+  if (matchError || participationsError || matchMutationError || participationMutationError) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">エラーが生じました、再度お試しください</p>
