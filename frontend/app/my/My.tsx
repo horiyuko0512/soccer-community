@@ -24,11 +24,20 @@ const status = {
 
 const My = () => {
   const router = useRouter()
-  const { data: participationsData, loading: participationsLoading } =
-    useParticipationsByUserIdQuery()
   const { data: userData, loading: userLoading, error: userError } = useUserQuery()
-  const { data: matchesData, loading: matchesLoading } = useMatchesByCreatorIdQuery({
-    variables: {},
+  const {
+    data: participationsData,
+    error: participationsError,
+    loading: participationsLoading,
+  } = useParticipationsByUserIdQuery({
+    skip: !userData?.user,
+  })
+  const {
+    data: matchesData,
+    error: matchesError,
+    loading: matchesLoading,
+  } = useMatchesByCreatorIdQuery({
+    skip: !participationsData?.participationsByUserId,
   })
 
   const [updateUserMutation, { error: mutationError }] = useUpdateUserMutation()
@@ -47,7 +56,7 @@ const My = () => {
     )
   }
 
-  if (userError || mutationError) {
+  if (userError || participationsError || matchesError || mutationError) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">

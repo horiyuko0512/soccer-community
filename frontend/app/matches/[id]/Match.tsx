@@ -17,7 +17,7 @@ import {
   ParticipationStatus,
   useCreateParticipationMutation,
   useMatchQuery,
-  useParicipationByUserIdAndMatchIdQuery,
+  useParticipationByUserIdAndMatchIdQuery,
 } from "@/graphql/generated/graphql"
 import { formatToJapaneseDateTime } from "@/lib/utils"
 import { useState } from "react"
@@ -38,12 +38,16 @@ const Match = ({ id }: MatchProps) => {
     variables: { id },
   })
 
-  const { data: participationData, loading: participationLoading } =
-    useParicipationByUserIdAndMatchIdQuery({
-      variables: { matchID: id },
-    })
+  const {
+    data: participationData,
+    loading: participationLoading,
+    error: participationError,
+  } = useParticipationByUserIdAndMatchIdQuery({
+    variables: { matchID: id },
+    skip: !data?.matche,
+  })
 
-  const [createParticipation] = useCreateParticipationMutation()
+  const [createParticipation, { error: mutationError }] = useCreateParticipationMutation()
 
   const router = useRouter()
   const [showApplyDialog, setShowApplyDialog] = useState(false)
@@ -57,14 +61,14 @@ const Match = ({ id }: MatchProps) => {
       </div>
     )
   }
-  if (error) {
+  if (error || participationError || mutationError) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">エラーが生じました、再度お試しください</p>
       </div>
     )
   }
-  if (error || !data?.matche) {
+  if (!data?.matche) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">試合情報がありません</p>
@@ -74,7 +78,7 @@ const Match = ({ id }: MatchProps) => {
 
   const match = data.matche
   const formattedDate = formatToJapaneseDateTime(match.date)
-  const isAlreadyApplied = !!participationData?.participantonByUserIdAndMatchId
+  const isAlreadyApplied = participationData?.participationByUserIdAndMatchId
 
   const handleApply = () => {
     setShowApplyDialog(true)

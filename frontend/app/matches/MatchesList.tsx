@@ -46,6 +46,12 @@ const MatchesList = () => {
     )
   }
 
+  if (data!.matches!.length === 0) {
+    ;<div className="flex justify-center items-center h-64">
+      <p className="text-lg font-medium text-gray-900">試合がまだありません。</p>
+    </div>
+  }
+
   return (
     <>
       <Card className="mb-6">

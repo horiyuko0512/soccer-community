@@ -101,8 +101,8 @@ type ComplexityRoot struct {
 		MatchesByCreatorID              func(childComplexity int) int
 		Node                            func(childComplexity int, id string) int
 		Nodes                           func(childComplexity int, ids []string) int
-		ParticipantonByUserIDAndMatchID func(childComplexity int, matchID string) int
 		Participation                   func(childComplexity int, id string) int
+		ParticipationByUserIDAndMatchID func(childComplexity int, matchID string) int
 		Participations                  func(childComplexity int) int
 		ParticipationsByMatchID         func(childComplexity int, matchID string) int
 		ParticipationsByUserID          func(childComplexity int) int
@@ -140,7 +140,7 @@ type QueryResolver interface {
 	MatchesByCreatorID(ctx context.Context) ([]*model.Match, error)
 	Participation(ctx context.Context, id string) (*model.Participation, error)
 	Participations(ctx context.Context) ([]*model.Participation, error)
-	ParticipantonByUserIDAndMatchID(ctx context.Context, matchID string) (*model.Participation, error)
+	ParticipationByUserIDAndMatchID(ctx context.Context, matchID string) (bool, error)
 	ParticipationsByUserID(ctx context.Context) ([]*model.Participation, error)
 	ParticipationsByMatchID(ctx context.Context, matchID string) ([]*model.Participation, error)
 	User(ctx context.Context) (*model.User, error)
@@ -482,18 +482,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Nodes(childComplexity, args["ids"].([]string)), true
 
-	case "Query.participantonByUserIdAndMatchId":
-		if e.complexity.Query.ParticipantonByUserIDAndMatchID == nil {
-			break
-		}
-
-		args, err := ec.field_Query_participantonByUserIdAndMatchId_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.ParticipantonByUserIDAndMatchID(childComplexity, args["matchID"].(string)), true
-
 	case "Query.participation":
 		if e.complexity.Query.Participation == nil {
 			break
@@ -505,6 +493,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Participation(childComplexity, args["id"].(string)), true
+
+	case "Query.participationByUserIdAndMatchId":
+		if e.complexity.Query.ParticipationByUserIDAndMatchID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_participationByUserIdAndMatchId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ParticipationByUserIDAndMatchID(childComplexity, args["matchID"].(string)), true
 
 	case "Query.participations":
 		if e.complexity.Query.Participations == nil {
@@ -1110,7 +1110,7 @@ type Query {
   matchesByCreatorId: [Match!]!
   participation(id: ID!): Participation!
   participations: [Participation!]!
-  participantonByUserIdAndMatchId(matchID: ID!): Participation!
+  participationByUserIdAndMatchId(matchID: ID!): Boolean!
   participationsByUserId: [Participation!]!
   participationsByMatchId(matchID: ID!): [Participation!]!
   user: User!
@@ -1617,17 +1617,17 @@ func (ec *executionContext) field_Query_nodes_argsIds(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_participantonByUserIdAndMatchId_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Query_participationByUserIdAndMatchId_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Query_participantonByUserIdAndMatchId_argsMatchID(ctx, rawArgs)
+	arg0, err := ec.field_Query_participationByUserIdAndMatchId_argsMatchID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["matchID"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_participantonByUserIdAndMatchId_argsMatchID(
+func (ec *executionContext) field_Query_participationByUserIdAndMatchId_argsMatchID(
 	ctx context.Context,
 	rawArgs map[string]any,
 ) (string, error) {
@@ -3959,8 +3959,8 @@ func (ec *executionContext) fieldContext_Query_participations(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_participantonByUserIdAndMatchId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_participantonByUserIdAndMatchId(ctx, field)
+func (ec *executionContext) _Query_participationByUserIdAndMatchId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_participationByUserIdAndMatchId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3973,7 +3973,7 @@ func (ec *executionContext) _Query_participantonByUserIdAndMatchId(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ParticipantonByUserIDAndMatchID(rctx, fc.Args["matchID"].(string))
+		return ec.resolvers.Query().ParticipationByUserIDAndMatchID(rctx, fc.Args["matchID"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3985,37 +3985,19 @@ func (ec *executionContext) _Query_participantonByUserIdAndMatchId(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Participation)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNParticipation2ᚖgithubᚗcomᚋhoriyuko0512ᚋsoccerᚑcommunityᚋresolverᚋmodelᚐParticipation(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_participantonByUserIdAndMatchId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_participationByUserIdAndMatchId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Participation_id(ctx, field)
-			case "userID":
-				return ec.fieldContext_Participation_userID(ctx, field)
-			case "matchID":
-				return ec.fieldContext_Participation_matchID(ctx, field)
-			case "status":
-				return ec.fieldContext_Participation_status(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Participation_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Participation_updatedAt(ctx, field)
-			case "user":
-				return ec.fieldContext_Participation_user(ctx, field)
-			case "match":
-				return ec.fieldContext_Participation_match(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Participation", field.Name)
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	defer func() {
@@ -4025,7 +4007,7 @@ func (ec *executionContext) fieldContext_Query_participantonByUserIdAndMatchId(c
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_participantonByUserIdAndMatchId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_participationByUserIdAndMatchId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9318,7 +9300,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "participantonByUserIdAndMatchId":
+		case "participationByUserIdAndMatchId":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9327,7 +9309,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_participantonByUserIdAndMatchId(ctx, field)
+				res = ec._Query_participationByUserIdAndMatchId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

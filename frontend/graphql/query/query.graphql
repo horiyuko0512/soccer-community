@@ -79,11 +79,8 @@ query Participations {
 }
 
 # 特定のユーザーと特定の試合の関係閲覧用
-query ParicipationByUserIdAndMatchId($matchID: ID!) {
-  participantonByUserIdAndMatchId(matchID: $matchID) {
-    id
-    status
-  }
+query ParticipationByUserIdAndMatchId($matchID: ID!) {
+  participationByUserIdAndMatchId(matchID: $matchID)
 }
 
 # 応募済み試合一覧確認用

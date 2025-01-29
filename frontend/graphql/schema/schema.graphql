@@ -394,7 +394,7 @@ type Query {
   matchesByCreatorId: [Match!]!
   participation(id: ID!): Participation!
   participations: [Participation!]!
-  participantonByUserIdAndMatchId(matchID: ID!): Participation!
+  participationByUserIdAndMatchId(matchID: ID!): Boolean!
   participationsByUserId: [Participation!]!
   participationsByMatchId(matchID: ID!): [Participation!]!
   user: User!

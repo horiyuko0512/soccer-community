@@ -3641,11 +3641,11 @@
             "deprecationReason": null
           },
           {
-            "name": "participantonByUserIdAndMatchId",
+            "name": "participation",
             "description": null,
             "args": [
               {
-                "name": "matchID",
+                "name": "id",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -3674,11 +3674,11 @@
             "deprecationReason": null
           },
           {
-            "name": "participation",
+            "name": "participationByUserIdAndMatchId",
             "description": null,
             "args": [
               {
-                "name": "id",
+                "name": "matchID",
                 "description": null,
                 "type": {
                   "kind": "NON_NULL",
@@ -3698,8 +3698,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Participation",
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               }
             },
