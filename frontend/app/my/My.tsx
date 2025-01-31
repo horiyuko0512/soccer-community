@@ -193,7 +193,10 @@ const My = () => {
                     <h3 className="font-medium mb-2">{participation.match.title}</h3>
                     <div className="flex flex-col">
                       <p className="text-sm text-gray-600">
-                        {formatEventDuration(participation.match.startAt, participation.match.endAt)}
+                        {formatEventDuration(
+                          participation.match.startAt,
+                          participation.match.endAt,
+                        )}
                       </p>
                       <p className="text-sm text-gray-600">{participation.match.location}</p>
                     </div>

@@ -60,7 +60,7 @@ const MatchesList = () => {
     <>
       <Card className="mb-6">
         <CardContent className="p-4">
-        <div className="space-y-4">
+          <div className="space-y-4">
             {/* Basic Search Fields */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>

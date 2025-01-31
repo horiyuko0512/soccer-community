@@ -44,7 +44,10 @@ export const formatDateTimeToISO = (date: string, time: string): string => {
  * @param endAt - 終了日時 (ISO 8601形式の文字列)
  * @returns {開催日, 開始時間, 終了時間} - 各フィールドが文字列のオブジェクト
  */
-export const formatEventDetails = (startAt: string, endAt: string): { date: string, startTime: string, endTime: string } => {
+export const formatEventDetails = (
+  startAt: string,
+  endAt: string,
+): { date: string; startTime: string; endTime: string } => {
   try {
     const jstStartAt = toZonedTime(new Date(startAt), "Asia/Tokyo")
     const jstEndAt = toZonedTime(new Date(endAt), "Asia/Tokyo")

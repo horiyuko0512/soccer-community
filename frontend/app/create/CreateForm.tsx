@@ -70,7 +70,6 @@ const CreateForm = () => {
       const formattedStartAt = formatDateTimeToISO(date, formData.startAt)
       const formattedEndAt = formatDateTimeToISO(date, formData.endAt)
 
-
       await createMatchMutation({
         variables: {
           input: {
