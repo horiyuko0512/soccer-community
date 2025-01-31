@@ -3,7 +3,9 @@ import { z } from "zod"
 
 export const updateMatchSchema = z.object({
   title: z.string().nonempty("タイトルは必須です"),
-  date: z.string().nonempty("開催日時は必須です"),
+  date: z.string().nonempty("開催日は必須です"),
+  startAt: z.string().nonempty("開始時間は必須です"),
+  endAt: z.string().nonempty("終了時間は必須です"),
   location: z.string().nonempty("場所は必須です"),
   level: z.nativeEnum(MatchLevel, { errorMap: () => ({ message: "レベルを選択してください" }) }),
   participants: z

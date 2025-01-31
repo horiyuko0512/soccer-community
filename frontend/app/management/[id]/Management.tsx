@@ -25,7 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { formatDateToISO, formatToJapaneseDateTime } from "@/lib/utils"
+import { formatDateTimeToISO, formatEventDetails, formatEventDuration } from "@/lib/utils"
 
 type MatchProps = {
   id: string
@@ -60,7 +60,7 @@ const Management = ({ id }: MatchProps) => {
     error: participationsError,
   } = useParticipationsByMatchIdQuery({
     variables: { matchID: id },
-    skip: !matchData?.matche,
+    skip: !matchData?.match,
   })
   const [updateMatchMutation, { error: matchMutationError }] = useUpdateMatchMutation()
   const [updateParticipationMutation, { error: participationMutationError }] =
@@ -69,6 +69,8 @@ const Management = ({ id }: MatchProps) => {
   const [formData, setFormData] = useState<UpdateMatchFormValues>({
     title: "",
     date: "",
+    startAt: "",
+    endAt: "",
     location: "",
     level: MatchLevel.Beginner,
     participants: "",
@@ -83,11 +85,14 @@ const Management = ({ id }: MatchProps) => {
   const [selectedParticipationId, setSelectedParticipationId] = useState<string | null>(null)
 
   useEffect(() => {
-    if (matchData?.matche) {
-      const match = matchData.matche
+    if (matchData?.match) {
+      const match = matchData.match
+      const eventDetails = formatEventDetails(match.startAt, match.endAt)
       setFormData({
         title: match.title,
-        date: match.date,
+        date: eventDetails.date,
+        startAt: eventDetails.startTime,
+        endAt: eventDetails.endTime,
         location: match.location,
         level: match.level,
         participants: match.participants.toString(),
@@ -122,11 +127,17 @@ const Management = ({ id }: MatchProps) => {
     setErrors({})
 
     try {
+      const { date, ...formDataWithoutDate } = formData
+      const formattedStartAt = formatDateTimeToISO(date, formData.startAt)
+      const formattedEndAt = formatDateTimeToISO(date, formData.endAt)
+
       await updateMatchMutation({
         variables: {
           id,
           input: {
-            ...formData,
+            ...formDataWithoutDate,
+            startAt: formattedStartAt,
+            endAt: formattedEndAt,
             participants: parseInt(formData.participants, 10),
             fee: parseInt(formData.fee, 10),
           },
@@ -222,14 +233,36 @@ const Management = ({ id }: MatchProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="date">開催日時</Label>
+                  <Label htmlFor="date">開催日</Label>
                   <Input
                     id="date"
-                    type="datetime-local"
-                    value={formatDateToISO(formData.date)}
+                    type="date"
+                    value={formData.date}
                     onChange={handleChange}
                   />
                   {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="startAt">開始時間</Label>
+                  <Input
+                    id="startAt"
+                    type="time"
+                    value={formData.startAt}
+                    onChange={handleChange}
+                  />
+                  {errors.startAt && <p className="text-red-500 text-sm">{errors.startAt}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="endAt">終了時間</Label>
+                  <Input
+                    id="endAt"
+                    type="time"
+                    value={formData.endAt}
+                    onChange={handleChange}
+                  />
+                  {errors.endAt && <p className="text-red-500 text-sm">{errors.endAt}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -321,13 +354,13 @@ const Management = ({ id }: MatchProps) => {
             <CardContent className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h2 className="text-lg font-bold text-sky-900">{matchData?.matche.title}</h2>
+                  <h2 className="text-lg font-bold text-sky-900">{matchData?.match.title}</h2>
                   <p className="text-sm text-sky-700 mt-1">
-                    {formatToJapaneseDateTime(matchData?.matche.date)}
+                    {formatEventDuration(matchData?.match.startAt, matchData?.match.endAt)}
                   </p>
-                  <p className="text-sm text-gray-600 mt-2">{matchData?.matche.location}</p>
+                  <p className="text-sm text-gray-600 mt-2">{matchData?.match.location}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    レベル: {levels.find((item) => item.id === matchData?.matche.level)?.label}
+                    レベル: {levels.find((item) => item.id === matchData?.match.level)?.label}
                   </p>
                   <p className="text-sm text-gray-600 mt-1">募集人数: {formData.participants}人</p>
                   <p className="text-sm text-gray-600">参加費: {formData.fee}円</p>
@@ -347,37 +380,41 @@ const Management = ({ id }: MatchProps) => {
       </Card>
 
       <div className="space-y-4 mt-8">
-        {participationsData?.participationsByMatchId.map((participation) => (
-          <Card key={participation.id}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">{participation.user.nickname}</h3>
-                  <p className="text-sm text-gray-600">
-                    ステータス: {status[participation.status]}
-                  </p>
+        {participationsData?.participationsByMatchId.length === 0 ? (
+          <p className="text-center text-gray-600">まだ申請がありません</p>
+        ) : (
+          participationsData?.participationsByMatchId.map((participation) => (
+            <Card key={participation.id}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium">{participation.user.nickname}</h3>
+                    <p className="text-sm text-gray-600">
+                      ステータス: {status[participation.status]}
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      className="bg-white hover:bg-red-50 text-red-600 border-red-200"
+                      onClick={() => handleReject(participation.id)}
+                      disabled={participation.status !== "pending"}
+                    >
+                      却下
+                    </Button>
+                    <Button
+                      className="bg-sky-500 hover:bg-sky-600"
+                      onClick={() => handleApprove(participation.id)}
+                      disabled={participation.status !== "pending"}
+                    >
+                      承認
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    className="bg-white hover:bg-red-50 text-red-600 border-red-200"
-                    onClick={() => handleReject(participation.id)}
-                    disabled={participation.status !== "pending"}
-                  >
-                    却下
-                  </Button>
-                  <Button
-                    className="bg-sky-500 hover:bg-sky-600"
-                    onClick={() => handleApprove(participation.id)}
-                    disabled={participation.status !== "pending"}
-                  >
-                    承認
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
       {/* 承認確認ダイアログ */}

@@ -66,21 +66,19 @@ const CreateForm = () => {
     setErrors({})
 
     try {
-      const formattedStartAt = formatDateTimeToISO(formData.date, formData.startAt)
-      const formattedEndAt = formatDateTimeToISO(formData.date, formData.endAt)
+      const { date, ...formDataWithoutDate } = formData
+      const formattedStartAt = formatDateTimeToISO(date, formData.startAt)
+      const formattedEndAt = formatDateTimeToISO(date, formData.endAt)
 
 
       await createMatchMutation({
         variables: {
           input: {
-            title: formData.title,
+            ...formDataWithoutDate,
             startAt: formattedStartAt,
             endAt: formattedEndAt,
-            location: formData.location,
-            level: formData.level,
             participants: parseInt(formData.participants, 10),
             fee: parseInt(formData.fee, 10),
-            notes: formData.notes,
             creatorID: "",
           },
         },
@@ -137,7 +135,7 @@ const CreateForm = () => {
               value={formData.startAt}
               onChange={handleChange}
             />
-            {errors.date && <p className="text-red-500 text-sm">{errors.startAt}</p>}
+            {errors.startAt && <p className="text-red-500 text-sm">{errors.startAt}</p>}
           </div>
 
           <div className="space-y-2">
@@ -148,7 +146,7 @@ const CreateForm = () => {
               value={formData.endAt}
               onChange={handleChange}
             />
-            {errors.date && <p className="text-red-500 text-sm">{errors.endAt}</p>}
+            {errors.endAt && <p className="text-red-500 text-sm">{errors.endAt}</p>}
           </div>
 
           <div className="space-y-2">
