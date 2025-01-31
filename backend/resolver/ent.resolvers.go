@@ -266,7 +266,7 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, e
 }
 
 // Matche is the resolver for the matche field.
-func (r *queryResolver) Matche(ctx context.Context, id string) (*model.Match, error) {
+func (r *queryResolver) Match(ctx context.Context, id string) (*model.Match, error) {
 	_, ok := ctx.Value(middleware.UserIdKey).(string)
 	if !ok {
 		return nil, fmt.Errorf("Unauthorized")

@@ -97,7 +97,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Matche                          func(childComplexity int, id string) int
+		Match                           func(childComplexity int, id string) int
 		Matches                         func(childComplexity int) int
 		MatchesByCreatorID              func(childComplexity int) int
 		Node                            func(childComplexity int, id string) int
@@ -136,7 +136,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Node(ctx context.Context, id string) (ent.Noder, error)
 	Nodes(ctx context.Context, ids []string) ([]ent.Noder, error)
-	Matche(ctx context.Context, id string) (*model.Match, error)
+	Match(ctx context.Context, id string) (*model.Match, error)
 	Matches(ctx context.Context) ([]*model.Match, error)
 	MatchesByCreatorID(ctx context.Context) ([]*model.Match, error)
 	Participation(ctx context.Context, id string) (*model.Participation, error)
@@ -440,17 +440,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Participation.UserID(childComplexity), true
 
-	case "Query.matche":
-		if e.complexity.Query.Matche == nil {
+	case "Query.match":
+		if e.complexity.Query.Match == nil {
 			break
 		}
 
-		args, err := ec.field_Query_matche_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_match_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Matche(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.Match(childComplexity, args["id"].(string)), true
 
 	case "Query.matches":
 		if e.complexity.Query.Matches == nil {
@@ -1126,7 +1126,7 @@ type Query {
     """
     ids: [ID!]!
   ): [Node]!
-  matche(id: ID!): Match!
+  match(id: ID!): Match!
   matches: [Match!]!
   matchesByCreatorId: [Match!]!
   participation(id: ID!): Participation!
@@ -1570,17 +1570,17 @@ func (ec *executionContext) field_Query___type_argsName(
 	return zeroVal, nil
 }
 
-func (ec *executionContext) field_Query_matche_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Query_match_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := ec.field_Query_matche_argsID(ctx, rawArgs)
+	arg0, err := ec.field_Query_match_argsID(ctx, rawArgs)
 	if err != nil {
 		return nil, err
 	}
 	args["id"] = arg0
 	return args, nil
 }
-func (ec *executionContext) field_Query_matche_argsID(
+func (ec *executionContext) field_Query_match_argsID(
 	ctx context.Context,
 	rawArgs map[string]any,
 ) (string, error) {
@@ -3663,8 +3663,8 @@ func (ec *executionContext) fieldContext_Query_nodes(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_matche(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_matche(ctx, field)
+func (ec *executionContext) _Query_match(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_match(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3677,7 +3677,7 @@ func (ec *executionContext) _Query_matche(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Matche(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().Match(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3694,7 +3694,7 @@ func (ec *executionContext) _Query_matche(ctx context.Context, field graphql.Col
 	return ec.marshalNMatch2ᚖgithubᚗcomᚋhoriyuko0512ᚋsoccerᚑcommunityᚋresolverᚋmodelᚐMatch(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_matche(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_match(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3743,7 +3743,7 @@ func (ec *executionContext) fieldContext_Query_matche(ctx context.Context, field
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_matche_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_match_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9345,7 +9345,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "matche":
+		case "match":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9354,7 +9354,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_matche(ctx, field)
+				res = ec._Query_match(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

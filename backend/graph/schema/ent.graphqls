@@ -393,7 +393,7 @@ type Query {
     """
     ids: [ID!]!
   ): [Node]!
-  matche(id: ID!): Match!
+  match(id: ID!): Match!
   matches: [Match!]!
   matchesByCreatorId: [Match!]!
   participation(id: ID!): Participation!
