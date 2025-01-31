@@ -57,7 +57,7 @@
             "deprecationReason": null
           },
           {
-            "name": "date",
+            "name": "endAt",
             "description": null,
             "type": {
               "kind": "NON_NULL",
@@ -177,6 +177,22 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Int",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAt",
+            "description": null,
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Time",
                 "ofType": null
               }
             },
@@ -525,7 +541,7 @@
             "deprecationReason": null
           },
           {
-            "name": "date",
+            "name": "endAt",
             "description": null,
             "args": [],
             "type": {
@@ -666,6 +682,22 @@
               "ofType": {
                 "kind": "SCALAR",
                 "name": "Int",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAt",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Time",
                 "ofType": null
               }
             },
@@ -950,8 +982,8 @@
             "deprecationReason": null
           },
           {
-            "name": "date",
-            "description": "date field predicates",
+            "name": "endAt",
+            "description": "end_at field predicates",
             "type": {
               "kind": "SCALAR",
               "name": "Time",
@@ -962,7 +994,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dateGT",
+            "name": "endAtGT",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -974,7 +1006,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dateGTE",
+            "name": "endAtGTE",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -986,7 +1018,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dateIn",
+            "name": "endAtIn",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -1006,7 +1038,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dateLT",
+            "name": "endAtLT",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -1018,7 +1050,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dateLTE",
+            "name": "endAtLTE",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -1030,7 +1062,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dateNEQ",
+            "name": "endAtNEQ",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -1042,7 +1074,7 @@
             "deprecationReason": null
           },
           {
-            "name": "dateNotIn",
+            "name": "endAtNotIn",
             "description": null,
             "type": {
               "kind": "LIST",
@@ -1917,6 +1949,118 @@
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "Int",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAt",
+            "description": "start_at field predicates",
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAtGT",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAtGTE",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAtIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAtLT",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAtLTE",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAtNEQ",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAtNotIn",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
                   "ofType": null
                 }
               }
@@ -3486,7 +3630,7 @@
         "isOneOf": null,
         "fields": [
           {
-            "name": "matche",
+            "name": "match",
             "description": null,
             "args": [
               {
@@ -3915,7 +4059,7 @@
             "deprecationReason": null
           },
           {
-            "name": "date",
+            "name": "endAt",
             "description": null,
             "type": {
               "kind": "SCALAR",
@@ -4013,6 +4157,18 @@
                   "ofType": null
                 }
               }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "startAt",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Time",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -6563,7 +6719,10 @@
         "name": "goField",
         "description": null,
         "isRepeatable": false,
-        "locations": ["FIELD_DEFINITION", "INPUT_FIELD_DEFINITION"],
+        "locations": [
+          "FIELD_DEFINITION",
+          "INPUT_FIELD_DEFINITION"
+        ],
         "args": [
           {
             "name": "forceResolver",
@@ -6607,7 +6766,14 @@
         "name": "goModel",
         "description": null,
         "isRepeatable": false,
-        "locations": ["ENUM", "INPUT_OBJECT", "INTERFACE", "OBJECT", "SCALAR", "UNION"],
+        "locations": [
+          "ENUM",
+          "INPUT_OBJECT",
+          "INTERFACE",
+          "OBJECT",
+          "SCALAR",
+          "UNION"
+        ],
         "args": [
           {
             "name": "forceGenerate",
@@ -6659,7 +6825,11 @@
         "name": "include",
         "description": "Directs the executor to include this field or fragment only when the `if` argument is true.",
         "isRepeatable": false,
-        "locations": ["FIELD", "FRAGMENT_SPREAD", "INLINE_FRAGMENT"],
+        "locations": [
+          "FIELD",
+          "FRAGMENT_SPREAD",
+          "INLINE_FRAGMENT"
+        ],
         "args": [
           {
             "name": "if",
@@ -6683,14 +6853,20 @@
         "name": "oneOf",
         "description": "Indicates exactly one field must be supplied and this field must not be `null`.",
         "isRepeatable": false,
-        "locations": ["INPUT_OBJECT"],
+        "locations": [
+          "INPUT_OBJECT"
+        ],
         "args": []
       },
       {
         "name": "skip",
         "description": "Directs the executor to skip this field or fragment when the `if` argument is true.",
         "isRepeatable": false,
-        "locations": ["FIELD", "FRAGMENT_SPREAD", "INLINE_FRAGMENT"],
+        "locations": [
+          "FIELD",
+          "FRAGMENT_SPREAD",
+          "INLINE_FRAGMENT"
+        ],
         "args": [
           {
             "name": "if",
@@ -6714,7 +6890,9 @@
         "name": "specifiedBy",
         "description": "Exposes a URL that specifies the behavior of this scalar.",
         "isRepeatable": false,
-        "locations": ["SCALAR"],
+        "locations": [
+          "SCALAR"
+        ],
         "args": [
           {
             "name": "url",

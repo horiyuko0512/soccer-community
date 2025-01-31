@@ -23,7 +23,8 @@ mutation CreateMatch($input: CreateMatchInput!) {
   createMatch(input: $input) {
     id
     title
-    date
+    startAt
+    endAt
     location
     level
     participants
@@ -39,7 +40,8 @@ mutation UpdateMatch($id: ID!, $input: UpdateMatchInput!) {
   updateMatch(id: $id, input: $input) {
     id
     title
-    date
+    startAt
+    endAt
     location
     level
     participants

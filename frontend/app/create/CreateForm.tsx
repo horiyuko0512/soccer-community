@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { MatchLevel, useCreateMatchMutation } from "@/graphql/generated/graphql"
 import { createMatchSchema, CreateMatchFormValues } from "./schema"
 import { useRouter } from "next/navigation"
-import { formatDateToISO } from "@/lib/utils"
+import { formatDateTimeToISO } from "@/lib/utils"
 import { Loader } from "lucide-react"
 
 type FormErrors = {
@@ -20,6 +20,8 @@ const CreateForm = () => {
   const [formData, setFormData] = useState<CreateMatchFormValues>({
     title: "",
     date: "",
+    startAt: "",
+    endAt: "",
     location: "",
     level: MatchLevel.Beginner,
     participants: "",
@@ -64,16 +66,21 @@ const CreateForm = () => {
     setErrors({})
 
     try {
-      const formattedDate = formatDateToISO(formData.date)
+      const formattedStartAt = formatDateTimeToISO(formData.date, formData.startAt)
+      const formattedEndAt = formatDateTimeToISO(formData.date, formData.endAt)
+
 
       await createMatchMutation({
         variables: {
           input: {
-            ...formData,
-            date: formattedDate,
+            title: formData.title,
+            startAt: formattedStartAt,
+            endAt: formattedEndAt,
+            location: formData.location,
+            level: formData.level,
             participants: parseInt(formData.participants, 10),
             fee: parseInt(formData.fee, 10),
-            level: formData.level,
+            notes: formData.notes,
             creatorID: "",
           },
         },
@@ -112,14 +119,36 @@ const CreateForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">開催日時</Label>
+            <Label htmlFor="date">開催日</Label>
             <Input
               id="date"
-              type="datetime-local"
+              type="date"
               value={formData.date}
               onChange={handleChange}
             />
             {errors.date && <p className="text-red-500 text-sm">{errors.date}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="startAt">開始時間</Label>
+            <Input
+              id="startAt"
+              type="time"
+              value={formData.startAt}
+              onChange={handleChange}
+            />
+            {errors.date && <p className="text-red-500 text-sm">{errors.startAt}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="endAt">終了時間</Label>
+            <Input
+              id="endAt"
+              type="time"
+              value={formData.endAt}
+              onChange={handleChange}
+            />
+            {errors.date && <p className="text-red-500 text-sm">{errors.endAt}</p>}
           </div>
 
           <div className="space-y-2">
@@ -171,7 +200,7 @@ const CreateForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fee">参加費</Label>
+            <Label htmlFor="fee">参加費 (円)</Label>
             <Input
               id="fee"
               type="number"
@@ -196,7 +225,7 @@ const CreateForm = () => {
           <Button
             type="submit"
             className="w-full bg-sky-500 hover:bg-sky-600"
-            disabled={loading}
+            disabled={loading || createSuccessful}
           >
             {loading ? (
               <Loader className="animate-spin" />

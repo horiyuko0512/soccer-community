@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { useMatchesQuery } from "@/graphql/generated/graphql"
-import { formatToJapaneseDateTime } from "@/lib/utils"
+import { formatEventDuration } from "@/lib/utils"
+import { ChevronDown, ChevronUp } from "lucide-react"
 
 const levels = [
   { id: "beginner", label: "初級" },
@@ -16,7 +17,10 @@ const levels = [
 
 const MatchesList = () => {
   const router = useRouter()
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false)
   const [date, setDate] = useState("")
+  const [startAt, setStartAt] = useState("")
+  const [endAt, setEndAt] = useState("")
   const [location, setLocation] = useState("")
   const [level, setLevel] = useState("")
   const [participants, setParticipants] = useState("")
@@ -56,71 +60,120 @@ const MatchesList = () => {
     <>
       <Card className="mb-6">
         <CardContent className="p-4">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">日付</label>
-              <Input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full"
-              />
-            </div>
+        <div className="space-y-4">
+            {/* Basic Search Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">開催日</label>
+                <Input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">場所</label>
-              <Input
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="試合の場所を入力"
-                className="w-full"
-              />
-            </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">開始時間</label>
+                <Input
+                  type="time"
+                  value={startAt}
+                  onChange={(e) => setStartAt(e.target.value)}
+                  className="w-full"
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">レベル</label>
-              <div className="grid grid-cols-3 gap-2">
-                {levels.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setLevel(item.id)}
-                    className={`
-                      px-4 py-2 rounded-md text-sm border
-                      transition-all duration-200
-                      ${
-                        level === item.id
-                          ? "border-sky-500 bg-sky-50 text-sky-700"
-                          : "border-gray-300 bg-white hover:bg-gray-50"
-                      }
-                    `}
-                  >
-                    {item.label}
-                  </button>
-                ))}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">終了時間</label>
+                <Input
+                  type="time"
+                  value={endAt}
+                  onChange={(e) => setEndAt(e.target.value)}
+                  className="w-full"
+                />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">参加者数</label>
-              <Input
-                type="number"
-                value={participants}
-                onChange={(e) => setParticipants(e.target.value)}
-                placeholder="参加者数を入力"
-                className="w-full"
-              />
+            {/* Advanced Search Toggle Button */}
+            <div className="flex justify-center">
+              <Button
+                variant="ghost"
+                className="text-sky-600 hover:text-sky-700"
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+              >
+                {showAdvancedSearch ? (
+                  <div className="flex items-center gap-2">
+                    詳細検索を閉じる
+                    <ChevronUp className="w-4 h-4" />
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    詳細検索
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                )}
+              </Button>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">料金</label>
-              <Input
-                type="number"
-                value={fee}
-                onChange={(e) => setFee(e.target.value)}
-                placeholder="料金を入力"
-                className="w-full"
-              />
-            </div>
+            {/* Advanced Search Fields */}
+            {showAdvancedSearch && (
+              <div className="space-y-4 pt-4 border-t border-gray-200">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">場所</label>
+                  <Input
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    placeholder="試合の場所を入力"
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">レベル</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {levels.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setLevel(item.id)}
+                        className={`
+                          px-4 py-2 rounded-md text-sm border
+                          transition-all duration-200
+                          ${
+                            level === item.id
+                              ? "border-sky-500 bg-sky-50 text-sky-700"
+                              : "border-gray-300 bg-white hover:bg-gray-50"
+                          }
+                        `}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">参加者数</label>
+                  <Input
+                    type="number"
+                    value={participants}
+                    onChange={(e) => setParticipants(e.target.value)}
+                    placeholder="参加者数を入力"
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">料金</label>
+                  <Input
+                    type="number"
+                    value={fee}
+                    onChange={(e) => setFee(e.target.value)}
+                    placeholder="料金を入力"
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            )}
 
             <Button
               onClick={handleSearch}
@@ -146,7 +199,7 @@ const MatchesList = () => {
                 </span>
               </div>
               <div className="space-y-2 text-sm text-sky-700">
-                <p>{formatToJapaneseDateTime(match.date)}</p>
+                <p>{formatEventDuration(match.startAt, match.endAt)}</p>
                 <p>{match.location}</p>
                 <p>レベル: {levels.find((item) => item.id === match.level)?.label}</p>
               </div>
