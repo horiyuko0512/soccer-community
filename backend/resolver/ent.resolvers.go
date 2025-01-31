@@ -28,7 +28,8 @@ func (r *mutationResolver) CreateMatch(ctx context.Context, input model.CreateMa
 	match, err := r.client.Match.
 		Create().
 		SetTitle(input.Title).
-		SetDate(input.Date).
+		SetStartAt(input.StartAt).
+		SetEndAt(input.EndAt).
 		SetLocation(input.Location).
 		SetLevel(input.Level).
 		SetParticipants(int(input.Participants)).
@@ -42,7 +43,8 @@ func (r *mutationResolver) CreateMatch(ctx context.Context, input model.CreateMa
 	return &model.Match{
 		ID:           match.ID.String(),
 		Title:        match.Title,
-		Date:         match.Date,
+		StartAt:      match.StartAt,
+		EndAt:        match.EndAt,
 		Location:     match.Location,
 		Level:        match.Level,
 		Participants: int32(match.Participants),
@@ -70,8 +72,11 @@ func (r *mutationResolver) UpdateMatch(ctx context.Context, id string, input mod
 	if input.Title != nil {
 		update = update.SetTitle(*input.Title)
 	}
-	if input.Date != nil {
-		update = update.SetDate(*input.Date)
+	if input.StartAt != nil {
+		update = update.SetStartAt(*input.StartAt)
+	}
+	if input.EndAt != nil {
+		update = update.SetEndAt(*input.EndAt)
 	}
 	if input.Location != nil {
 		update = update.SetLocation(*input.Location)
@@ -99,7 +104,8 @@ func (r *mutationResolver) UpdateMatch(ctx context.Context, id string, input mod
 	return &model.Match{
 		ID:           match.ID.String(),
 		Title:        match.Title,
-		Date:         match.Date,
+		StartAt:      match.StartAt,
+		EndAt:        match.EndAt,
 		Location:     match.Location,
 		Level:        match.Level,
 		Participants: int32(match.Participants),
@@ -272,7 +278,8 @@ func (r *queryResolver) Matche(ctx context.Context, id string) (*model.Match, er
 	return &model.Match{
 		ID:           match.ID.String(),
 		Title:        match.Title,
-		Date:         match.Date,
+		StartAt:      match.StartAt,
+		EndAt:        match.EndAt,
 		Location:     match.Location,
 		Level:        match.Level,
 		Participants: int32(match.Participants),
@@ -302,7 +309,8 @@ func (r *queryResolver) Matches(ctx context.Context) ([]*model.Match, error) {
 		result = append(result, &model.Match{
 			ID:           match.ID.String(),
 			Title:        match.Title,
-			Date:         match.Date,
+			StartAt:      match.StartAt,
+			EndAt:        match.EndAt,
 			Location:     match.Location,
 			Level:        match.Level,
 			Participants: int32(match.Participants),
@@ -334,7 +342,8 @@ func (r *queryResolver) MatchesByCreatorID(ctx context.Context) ([]*model.Match,
 		result = append(result, &model.Match{
 			ID:       match.ID.String(),
 			Title:    match.Title,
-			Date:     match.Date,
+			StartAt:  match.StartAt,
+			EndAt:    match.EndAt,
 			Location: match.Location,
 		})
 	}
@@ -429,7 +438,8 @@ func (r *queryResolver) ParticipationsByUserID(ctx context.Context) ([]*model.Pa
 			Match: &model.Match{
 				ID:       participation.Edges.Match.ID.String(),
 				Title:    participation.Edges.Match.Title,
-				Date:     participation.Edges.Match.Date,
+				StartAt:  participation.Edges.Match.StartAt,
+				EndAt:    participation.Edges.Match.EndAt,
 				Location: participation.Edges.Match.Location,
 			},
 		})

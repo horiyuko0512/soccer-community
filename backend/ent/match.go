@@ -21,8 +21,10 @@ type Match struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
-	// Date holds the value of the "date" field.
-	Date time.Time `json:"date,omitempty"`
+	// StartAt holds the value of the "start_at" field.
+	StartAt time.Time `json:"start_at,omitempty"`
+	// EndAt holds the value of the "end_at" field.
+	EndAt time.Time `json:"end_at,omitempty"`
 	// Location holds the value of the "location" field.
 	Location string `json:"location,omitempty"`
 	// Level holds the value of the "level" field.
@@ -93,7 +95,7 @@ func (*Match) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case match.FieldTitle, match.FieldLocation, match.FieldLevel, match.FieldNotes:
 			values[i] = new(sql.NullString)
-		case match.FieldDate, match.FieldCreatedAt, match.FieldUpdatedAt:
+		case match.FieldStartAt, match.FieldEndAt, match.FieldCreatedAt, match.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case match.FieldID, match.FieldCreatorID:
 			values[i] = new(uuid.UUID)
@@ -124,11 +126,17 @@ func (m *Match) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				m.Title = value.String
 			}
-		case match.FieldDate:
+		case match.FieldStartAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field date", values[i])
+				return fmt.Errorf("unexpected type %T for field start_at", values[i])
 			} else if value.Valid {
-				m.Date = value.Time
+				m.StartAt = value.Time
+			}
+		case match.FieldEndAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field end_at", values[i])
+			} else if value.Valid {
+				m.EndAt = value.Time
 			}
 		case match.FieldLocation:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -233,8 +241,11 @@ func (m *Match) String() string {
 	builder.WriteString("title=")
 	builder.WriteString(m.Title)
 	builder.WriteString(", ")
-	builder.WriteString("date=")
-	builder.WriteString(m.Date.Format(time.ANSIC))
+	builder.WriteString("start_at=")
+	builder.WriteString(m.StartAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("end_at=")
+	builder.WriteString(m.EndAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("location=")
 	builder.WriteString(m.Location)

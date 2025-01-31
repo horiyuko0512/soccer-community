@@ -65,10 +65,15 @@ func (m *MatchQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 				selectedFields = append(selectedFields, match.FieldTitle)
 				fieldSeen[match.FieldTitle] = struct{}{}
 			}
-		case "date":
-			if _, ok := fieldSeen[match.FieldDate]; !ok {
-				selectedFields = append(selectedFields, match.FieldDate)
-				fieldSeen[match.FieldDate] = struct{}{}
+		case "startAt":
+			if _, ok := fieldSeen[match.FieldStartAt]; !ok {
+				selectedFields = append(selectedFields, match.FieldStartAt)
+				fieldSeen[match.FieldStartAt] = struct{}{}
+			}
+		case "endAt":
+			if _, ok := fieldSeen[match.FieldEndAt]; !ok {
+				selectedFields = append(selectedFields, match.FieldEndAt)
+				fieldSeen[match.FieldEndAt] = struct{}{}
 			}
 		case "location":
 			if _, ok := fieldSeen[match.FieldLocation]; !ok {

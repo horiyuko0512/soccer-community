@@ -12,7 +12,8 @@ var (
 	MatchesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "title", Type: field.TypeString, Size: 50},
-		{Name: "date", Type: field.TypeTime},
+		{Name: "start_at", Type: field.TypeTime},
+		{Name: "end_at", Type: field.TypeTime},
 		{Name: "location", Type: field.TypeString},
 		{Name: "level", Type: field.TypeEnum, Enums: []string{"beginner", "intermediate", "advanced"}},
 		{Name: "participants", Type: field.TypeInt},
@@ -31,26 +32,36 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "matches_users_matches",
-				Columns:    []*schema.Column{MatchesColumns[11]},
+				Columns:    []*schema.Column{MatchesColumns[12]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "match_created_at",
-				Unique:  false,
-				Columns: []*schema.Column{MatchesColumns[8]},
+				Name:    "match_id_creator_id",
+				Unique:  true,
+				Columns: []*schema.Column{MatchesColumns[0], MatchesColumns[12]},
 			},
 			{
-				Name:    "match_date",
+				Name:    "match_start_at",
 				Unique:  false,
 				Columns: []*schema.Column{MatchesColumns[2]},
 			},
 			{
-				Name:    "match_level",
+				Name:    "match_end_at",
+				Unique:  false,
+				Columns: []*schema.Column{MatchesColumns[3]},
+			},
+			{
+				Name:    "match_location",
 				Unique:  false,
 				Columns: []*schema.Column{MatchesColumns[4]},
+			},
+			{
+				Name:    "match_level",
+				Unique:  false,
+				Columns: []*schema.Column{MatchesColumns[5]},
 			},
 		},
 	}
@@ -88,16 +99,6 @@ var (
 				Unique:  true,
 				Columns: []*schema.Column{ParticipationsColumns[5], ParticipationsColumns[4]},
 			},
-			{
-				Name:    "participation_status",
-				Unique:  false,
-				Columns: []*schema.Column{ParticipationsColumns[1]},
-			},
-			{
-				Name:    "participation_created_at",
-				Unique:  false,
-				Columns: []*schema.Column{ParticipationsColumns[2]},
-			},
 		},
 	}
 	// UsersColumns holds the columns for the "users" table.
@@ -117,14 +118,9 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "user_email",
+				Name:    "user_id_email",
 				Unique:  true,
-				Columns: []*schema.Column{UsersColumns[2]},
-			},
-			{
-				Name:    "user_nick_name",
-				Unique:  true,
-				Columns: []*schema.Column{UsersColumns[1]},
+				Columns: []*schema.Column{UsersColumns[0], UsersColumns[2]},
 			},
 		},
 	}

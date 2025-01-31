@@ -45,16 +45,30 @@ func (mu *MatchUpdate) SetNillableTitle(s *string) *MatchUpdate {
 	return mu
 }
 
-// SetDate sets the "date" field.
-func (mu *MatchUpdate) SetDate(t time.Time) *MatchUpdate {
-	mu.mutation.SetDate(t)
+// SetStartAt sets the "start_at" field.
+func (mu *MatchUpdate) SetStartAt(t time.Time) *MatchUpdate {
+	mu.mutation.SetStartAt(t)
 	return mu
 }
 
-// SetNillableDate sets the "date" field if the given value is not nil.
-func (mu *MatchUpdate) SetNillableDate(t *time.Time) *MatchUpdate {
+// SetNillableStartAt sets the "start_at" field if the given value is not nil.
+func (mu *MatchUpdate) SetNillableStartAt(t *time.Time) *MatchUpdate {
 	if t != nil {
-		mu.SetDate(*t)
+		mu.SetStartAt(*t)
+	}
+	return mu
+}
+
+// SetEndAt sets the "end_at" field.
+func (mu *MatchUpdate) SetEndAt(t time.Time) *MatchUpdate {
+	mu.mutation.SetEndAt(t)
+	return mu
+}
+
+// SetNillableEndAt sets the "end_at" field if the given value is not nil.
+func (mu *MatchUpdate) SetNillableEndAt(t *time.Time) *MatchUpdate {
+	if t != nil {
+		mu.SetEndAt(*t)
 	}
 	return mu
 }
@@ -318,8 +332,11 @@ func (mu *MatchUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mu.mutation.Title(); ok {
 		_spec.SetField(match.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := mu.mutation.Date(); ok {
-		_spec.SetField(match.FieldDate, field.TypeTime, value)
+	if value, ok := mu.mutation.StartAt(); ok {
+		_spec.SetField(match.FieldStartAt, field.TypeTime, value)
+	}
+	if value, ok := mu.mutation.EndAt(); ok {
+		_spec.SetField(match.FieldEndAt, field.TypeTime, value)
 	}
 	if value, ok := mu.mutation.Location(); ok {
 		_spec.SetField(match.FieldLocation, field.TypeString, value)
@@ -456,16 +473,30 @@ func (muo *MatchUpdateOne) SetNillableTitle(s *string) *MatchUpdateOne {
 	return muo
 }
 
-// SetDate sets the "date" field.
-func (muo *MatchUpdateOne) SetDate(t time.Time) *MatchUpdateOne {
-	muo.mutation.SetDate(t)
+// SetStartAt sets the "start_at" field.
+func (muo *MatchUpdateOne) SetStartAt(t time.Time) *MatchUpdateOne {
+	muo.mutation.SetStartAt(t)
 	return muo
 }
 
-// SetNillableDate sets the "date" field if the given value is not nil.
-func (muo *MatchUpdateOne) SetNillableDate(t *time.Time) *MatchUpdateOne {
+// SetNillableStartAt sets the "start_at" field if the given value is not nil.
+func (muo *MatchUpdateOne) SetNillableStartAt(t *time.Time) *MatchUpdateOne {
 	if t != nil {
-		muo.SetDate(*t)
+		muo.SetStartAt(*t)
+	}
+	return muo
+}
+
+// SetEndAt sets the "end_at" field.
+func (muo *MatchUpdateOne) SetEndAt(t time.Time) *MatchUpdateOne {
+	muo.mutation.SetEndAt(t)
+	return muo
+}
+
+// SetNillableEndAt sets the "end_at" field if the given value is not nil.
+func (muo *MatchUpdateOne) SetNillableEndAt(t *time.Time) *MatchUpdateOne {
+	if t != nil {
+		muo.SetEndAt(*t)
 	}
 	return muo
 }
@@ -759,8 +790,11 @@ func (muo *MatchUpdateOne) sqlSave(ctx context.Context) (_node *Match, err error
 	if value, ok := muo.mutation.Title(); ok {
 		_spec.SetField(match.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := muo.mutation.Date(); ok {
-		_spec.SetField(match.FieldDate, field.TypeTime, value)
+	if value, ok := muo.mutation.StartAt(); ok {
+		_spec.SetField(match.FieldStartAt, field.TypeTime, value)
+	}
+	if value, ok := muo.mutation.EndAt(); ok {
+		_spec.SetField(match.FieldEndAt, field.TypeTime, value)
 	}
 	if value, ok := muo.mutation.Location(); ok {
 		_spec.SetField(match.FieldLocation, field.TypeString, value)

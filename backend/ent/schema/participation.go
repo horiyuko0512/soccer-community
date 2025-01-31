@@ -56,8 +56,6 @@ func (Participation) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("user_id", "match_id").
       Unique(),
-    index.Fields("status"),
-    index.Fields("created_at"),
 	}
 }
 
