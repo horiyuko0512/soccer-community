@@ -19,7 +19,7 @@ import {
   useMatchQuery,
   useParticipationByUserIdAndMatchIdQuery,
 } from "@/graphql/generated/graphql"
-import { formatToJapaneseDateTime } from "@/lib/utils"
+import { formatEventDuration } from "@/lib/utils"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 
@@ -44,7 +44,7 @@ const Match = ({ id }: MatchProps) => {
     error: participationError,
   } = useParticipationByUserIdAndMatchIdQuery({
     variables: { matchID: id },
-    skip: !data?.matche,
+    skip: !data?.match,
   })
 
   const [createParticipation, { error: mutationError }] = useCreateParticipationMutation()
@@ -68,7 +68,7 @@ const Match = ({ id }: MatchProps) => {
       </div>
     )
   }
-  if (!data?.matche) {
+  if (!data?.match) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">試合情報がありません</p>
@@ -76,8 +76,8 @@ const Match = ({ id }: MatchProps) => {
     )
   }
 
-  const match = data.matche
-  const formattedDate = formatToJapaneseDateTime(match.date)
+  const match = data.match
+  const formattedDate = formatEventDuration(match.startAt, match.endAt)
   const isAlreadyApplied = participationData?.participationByUserIdAndMatchId
 
   const handleApply = () => {

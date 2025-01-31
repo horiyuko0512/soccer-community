@@ -25,7 +25,8 @@ func (Match) Fields() []ent.Field {
 		field.String("title").
 			NotEmpty().
 			MaxLen(50),
-		field.Time("date"),
+		field.Time("start_at"),
+		field.Time("end_at"),
 		field.String("location").
 			NotEmpty(),
 		field.Enum("level").
@@ -62,8 +63,10 @@ func (Match) Edges() []ent.Edge {
 
 func (Match) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("created_at"),
-		index.Fields("date"),
+		index.Fields("id", "creator_id").Unique(),
+		index.Fields("start_at"),
+		index.Fields("end_at"),
+		index.Fields("location"),
 		index.Fields("level"),
 	}
 }

@@ -37,33 +37,33 @@ func init() {
 		}
 	}()
 	// matchDescLocation is the schema descriptor for location field.
-	matchDescLocation := matchFields[3].Descriptor()
+	matchDescLocation := matchFields[4].Descriptor()
 	// match.LocationValidator is a validator for the "location" field. It is called by the builders before save.
 	match.LocationValidator = matchDescLocation.Validators[0].(func(string) error)
 	// matchDescParticipants is the schema descriptor for participants field.
-	matchDescParticipants := matchFields[5].Descriptor()
+	matchDescParticipants := matchFields[6].Descriptor()
 	// match.ParticipantsValidator is a validator for the "participants" field. It is called by the builders before save.
 	match.ParticipantsValidator = matchDescParticipants.Validators[0].(func(int) error)
 	// matchDescFee is the schema descriptor for fee field.
-	matchDescFee := matchFields[6].Descriptor()
+	matchDescFee := matchFields[7].Descriptor()
 	// match.FeeValidator is a validator for the "fee" field. It is called by the builders before save.
 	match.FeeValidator = matchDescFee.Validators[0].(func(int) error)
 	// matchDescNotes is the schema descriptor for notes field.
-	matchDescNotes := matchFields[7].Descriptor()
+	matchDescNotes := matchFields[8].Descriptor()
 	// match.NotesValidator is a validator for the "notes" field. It is called by the builders before save.
 	match.NotesValidator = matchDescNotes.Validators[0].(func(string) error)
 	// matchDescCreatedAt is the schema descriptor for created_at field.
-	matchDescCreatedAt := matchFields[9].Descriptor()
+	matchDescCreatedAt := matchFields[10].Descriptor()
 	// match.DefaultCreatedAt holds the default value on creation for the created_at field.
 	match.DefaultCreatedAt = matchDescCreatedAt.Default.(func() time.Time)
 	// matchDescUpdatedAt is the schema descriptor for updated_at field.
-	matchDescUpdatedAt := matchFields[10].Descriptor()
+	matchDescUpdatedAt := matchFields[11].Descriptor()
 	// match.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	match.DefaultUpdatedAt = matchDescUpdatedAt.Default.(func() time.Time)
 	// match.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	match.UpdateDefaultUpdatedAt = matchDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// matchDescIsApplied is the schema descriptor for is_applied field.
-	matchDescIsApplied := matchFields[11].Descriptor()
+	matchDescIsApplied := matchFields[12].Descriptor()
 	// match.DefaultIsApplied holds the default value on creation for the is_applied field.
 	match.DefaultIsApplied = matchDescIsApplied.Default.(bool)
 	// matchDescID is the schema descriptor for id field.

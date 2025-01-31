@@ -61,9 +61,14 @@ func Title(v string) predicate.Match {
 	return predicate.Match(sql.FieldEQ(FieldTitle, v))
 }
 
-// Date applies equality check predicate on the "date" field. It's identical to DateEQ.
-func Date(v time.Time) predicate.Match {
-	return predicate.Match(sql.FieldEQ(FieldDate, v))
+// StartAt applies equality check predicate on the "start_at" field. It's identical to StartAtEQ.
+func StartAt(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldEQ(FieldStartAt, v))
+}
+
+// EndAt applies equality check predicate on the "end_at" field. It's identical to EndAtEQ.
+func EndAt(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldEQ(FieldEndAt, v))
 }
 
 // Location applies equality check predicate on the "location" field. It's identical to LocationEQ.
@@ -171,44 +176,84 @@ func TitleContainsFold(v string) predicate.Match {
 	return predicate.Match(sql.FieldContainsFold(FieldTitle, v))
 }
 
-// DateEQ applies the EQ predicate on the "date" field.
-func DateEQ(v time.Time) predicate.Match {
-	return predicate.Match(sql.FieldEQ(FieldDate, v))
+// StartAtEQ applies the EQ predicate on the "start_at" field.
+func StartAtEQ(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldEQ(FieldStartAt, v))
 }
 
-// DateNEQ applies the NEQ predicate on the "date" field.
-func DateNEQ(v time.Time) predicate.Match {
-	return predicate.Match(sql.FieldNEQ(FieldDate, v))
+// StartAtNEQ applies the NEQ predicate on the "start_at" field.
+func StartAtNEQ(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldNEQ(FieldStartAt, v))
 }
 
-// DateIn applies the In predicate on the "date" field.
-func DateIn(vs ...time.Time) predicate.Match {
-	return predicate.Match(sql.FieldIn(FieldDate, vs...))
+// StartAtIn applies the In predicate on the "start_at" field.
+func StartAtIn(vs ...time.Time) predicate.Match {
+	return predicate.Match(sql.FieldIn(FieldStartAt, vs...))
 }
 
-// DateNotIn applies the NotIn predicate on the "date" field.
-func DateNotIn(vs ...time.Time) predicate.Match {
-	return predicate.Match(sql.FieldNotIn(FieldDate, vs...))
+// StartAtNotIn applies the NotIn predicate on the "start_at" field.
+func StartAtNotIn(vs ...time.Time) predicate.Match {
+	return predicate.Match(sql.FieldNotIn(FieldStartAt, vs...))
 }
 
-// DateGT applies the GT predicate on the "date" field.
-func DateGT(v time.Time) predicate.Match {
-	return predicate.Match(sql.FieldGT(FieldDate, v))
+// StartAtGT applies the GT predicate on the "start_at" field.
+func StartAtGT(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldGT(FieldStartAt, v))
 }
 
-// DateGTE applies the GTE predicate on the "date" field.
-func DateGTE(v time.Time) predicate.Match {
-	return predicate.Match(sql.FieldGTE(FieldDate, v))
+// StartAtGTE applies the GTE predicate on the "start_at" field.
+func StartAtGTE(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldGTE(FieldStartAt, v))
 }
 
-// DateLT applies the LT predicate on the "date" field.
-func DateLT(v time.Time) predicate.Match {
-	return predicate.Match(sql.FieldLT(FieldDate, v))
+// StartAtLT applies the LT predicate on the "start_at" field.
+func StartAtLT(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldLT(FieldStartAt, v))
 }
 
-// DateLTE applies the LTE predicate on the "date" field.
-func DateLTE(v time.Time) predicate.Match {
-	return predicate.Match(sql.FieldLTE(FieldDate, v))
+// StartAtLTE applies the LTE predicate on the "start_at" field.
+func StartAtLTE(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldLTE(FieldStartAt, v))
+}
+
+// EndAtEQ applies the EQ predicate on the "end_at" field.
+func EndAtEQ(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldEQ(FieldEndAt, v))
+}
+
+// EndAtNEQ applies the NEQ predicate on the "end_at" field.
+func EndAtNEQ(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldNEQ(FieldEndAt, v))
+}
+
+// EndAtIn applies the In predicate on the "end_at" field.
+func EndAtIn(vs ...time.Time) predicate.Match {
+	return predicate.Match(sql.FieldIn(FieldEndAt, vs...))
+}
+
+// EndAtNotIn applies the NotIn predicate on the "end_at" field.
+func EndAtNotIn(vs ...time.Time) predicate.Match {
+	return predicate.Match(sql.FieldNotIn(FieldEndAt, vs...))
+}
+
+// EndAtGT applies the GT predicate on the "end_at" field.
+func EndAtGT(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldGT(FieldEndAt, v))
+}
+
+// EndAtGTE applies the GTE predicate on the "end_at" field.
+func EndAtGTE(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldGTE(FieldEndAt, v))
+}
+
+// EndAtLT applies the LT predicate on the "end_at" field.
+func EndAtLT(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldLT(FieldEndAt, v))
+}
+
+// EndAtLTE applies the LTE predicate on the "end_at" field.
+func EndAtLTE(v time.Time) predicate.Match {
+	return predicate.Match(sql.FieldLTE(FieldEndAt, v))
 }
 
 // LocationEQ applies the EQ predicate on the "location" field.

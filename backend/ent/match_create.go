@@ -29,9 +29,15 @@ func (mc *MatchCreate) SetTitle(s string) *MatchCreate {
 	return mc
 }
 
-// SetDate sets the "date" field.
-func (mc *MatchCreate) SetDate(t time.Time) *MatchCreate {
-	mc.mutation.SetDate(t)
+// SetStartAt sets the "start_at" field.
+func (mc *MatchCreate) SetStartAt(t time.Time) *MatchCreate {
+	mc.mutation.SetStartAt(t)
+	return mc
+}
+
+// SetEndAt sets the "end_at" field.
+func (mc *MatchCreate) SetEndAt(t time.Time) *MatchCreate {
+	mc.mutation.SetEndAt(t)
 	return mc
 }
 
@@ -210,8 +216,11 @@ func (mc *MatchCreate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Match.title": %w`, err)}
 		}
 	}
-	if _, ok := mc.mutation.Date(); !ok {
-		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "Match.date"`)}
+	if _, ok := mc.mutation.StartAt(); !ok {
+		return &ValidationError{Name: "start_at", err: errors.New(`ent: missing required field "Match.start_at"`)}
+	}
+	if _, ok := mc.mutation.EndAt(); !ok {
+		return &ValidationError{Name: "end_at", err: errors.New(`ent: missing required field "Match.end_at"`)}
 	}
 	if _, ok := mc.mutation.Location(); !ok {
 		return &ValidationError{Name: "location", err: errors.New(`ent: missing required field "Match.location"`)}
@@ -307,9 +316,13 @@ func (mc *MatchCreate) createSpec() (*Match, *sqlgraph.CreateSpec) {
 		_spec.SetField(match.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := mc.mutation.Date(); ok {
-		_spec.SetField(match.FieldDate, field.TypeTime, value)
-		_node.Date = value
+	if value, ok := mc.mutation.StartAt(); ok {
+		_spec.SetField(match.FieldStartAt, field.TypeTime, value)
+		_node.StartAt = value
+	}
+	if value, ok := mc.mutation.EndAt(); ok {
+		_spec.SetField(match.FieldEndAt, field.TypeTime, value)
+		_node.EndAt = value
 	}
 	if value, ok := mc.mutation.Location(); ok {
 		_spec.SetField(match.FieldLocation, field.TypeString, value)

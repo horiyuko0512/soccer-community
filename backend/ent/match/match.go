@@ -20,8 +20,10 @@ const (
 	FieldID = "id"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
-	// FieldDate holds the string denoting the date field in the database.
-	FieldDate = "date"
+	// FieldStartAt holds the string denoting the start_at field in the database.
+	FieldStartAt = "start_at"
+	// FieldEndAt holds the string denoting the end_at field in the database.
+	FieldEndAt = "end_at"
 	// FieldLocation holds the string denoting the location field in the database.
 	FieldLocation = "location"
 	// FieldLevel holds the string denoting the level field in the database.
@@ -66,7 +68,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldTitle,
-	FieldDate,
+	FieldStartAt,
+	FieldEndAt,
 	FieldLocation,
 	FieldLevel,
 	FieldParticipants,
@@ -148,9 +151,14 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTitle, opts...).ToFunc()
 }
 
-// ByDate orders the results by the date field.
-func ByDate(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDate, opts...).ToFunc()
+// ByStartAt orders the results by the start_at field.
+func ByStartAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStartAt, opts...).ToFunc()
+}
+
+// ByEndAt orders the results by the end_at field.
+func ByEndAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEndAt, opts...).ToFunc()
 }
 
 // ByLocation orders the results by the location field.

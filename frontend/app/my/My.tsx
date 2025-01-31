@@ -13,7 +13,7 @@ import {
   useParticipationsByUserIdQuery,
   useMatchesByCreatorIdQuery,
 } from "@/graphql/generated/graphql"
-import { formatToJapaneseDateTime } from "@/lib/utils"
+import { formatEventDuration } from "@/lib/utils"
 
 const status = {
   approved: "承認済み",
@@ -193,7 +193,10 @@ const My = () => {
                     <h3 className="font-medium mb-2">{participation.match.title}</h3>
                     <div className="flex flex-col">
                       <p className="text-sm text-gray-600">
-                        {formatToJapaneseDateTime(participation.match.date)}
+                        {formatEventDuration(
+                          participation.match.startAt,
+                          participation.match.endAt,
+                        )}
                       </p>
                       <p className="text-sm text-gray-600">{participation.match.location}</p>
                     </div>
@@ -211,7 +214,7 @@ const My = () => {
                     <h3 className="font-medium mb-2">{match.title}</h3>
                     <div className="flex flex-col">
                       <p className="text-sm text-gray-600">
-                        {formatToJapaneseDateTime(match.date)}
+                        {formatEventDuration(match.startAt, match.endAt)}
                       </p>
                       <p className="text-sm text-gray-600">{match.location}</p>
                       <div className="mt-2">

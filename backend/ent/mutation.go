@@ -39,7 +39,8 @@ type MatchMutation struct {
 	typ                        string
 	id                         *uuid.UUID
 	title                      *string
-	date                       *time.Time
+	start_at                   *time.Time
+	end_at                     *time.Time
 	location                   *string
 	level                      *match.Level
 	participants               *int
@@ -201,40 +202,76 @@ func (m *MatchMutation) ResetTitle() {
 	m.title = nil
 }
 
-// SetDate sets the "date" field.
-func (m *MatchMutation) SetDate(t time.Time) {
-	m.date = &t
+// SetStartAt sets the "start_at" field.
+func (m *MatchMutation) SetStartAt(t time.Time) {
+	m.start_at = &t
 }
 
-// Date returns the value of the "date" field in the mutation.
-func (m *MatchMutation) Date() (r time.Time, exists bool) {
-	v := m.date
+// StartAt returns the value of the "start_at" field in the mutation.
+func (m *MatchMutation) StartAt() (r time.Time, exists bool) {
+	v := m.start_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDate returns the old "date" field's value of the Match entity.
+// OldStartAt returns the old "start_at" field's value of the Match entity.
 // If the Match object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MatchMutation) OldDate(ctx context.Context) (v time.Time, err error) {
+func (m *MatchMutation) OldStartAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDate is only allowed on UpdateOne operations")
+		return v, errors.New("OldStartAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDate requires an ID field in the mutation")
+		return v, errors.New("OldStartAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDate: %w", err)
+		return v, fmt.Errorf("querying old value for OldStartAt: %w", err)
 	}
-	return oldValue.Date, nil
+	return oldValue.StartAt, nil
 }
 
-// ResetDate resets all changes to the "date" field.
-func (m *MatchMutation) ResetDate() {
-	m.date = nil
+// ResetStartAt resets all changes to the "start_at" field.
+func (m *MatchMutation) ResetStartAt() {
+	m.start_at = nil
+}
+
+// SetEndAt sets the "end_at" field.
+func (m *MatchMutation) SetEndAt(t time.Time) {
+	m.end_at = &t
+}
+
+// EndAt returns the value of the "end_at" field in the mutation.
+func (m *MatchMutation) EndAt() (r time.Time, exists bool) {
+	v := m.end_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEndAt returns the old "end_at" field's value of the Match entity.
+// If the Match object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MatchMutation) OldEndAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEndAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEndAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEndAt: %w", err)
+	}
+	return oldValue.EndAt, nil
+}
+
+// ResetEndAt resets all changes to the "end_at" field.
+func (m *MatchMutation) ResetEndAt() {
+	m.end_at = nil
 }
 
 // SetLocation sets the "location" field.
@@ -716,12 +753,15 @@ func (m *MatchMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MatchMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.title != nil {
 		fields = append(fields, match.FieldTitle)
 	}
-	if m.date != nil {
-		fields = append(fields, match.FieldDate)
+	if m.start_at != nil {
+		fields = append(fields, match.FieldStartAt)
+	}
+	if m.end_at != nil {
+		fields = append(fields, match.FieldEndAt)
 	}
 	if m.location != nil {
 		fields = append(fields, match.FieldLocation)
@@ -760,8 +800,10 @@ func (m *MatchMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case match.FieldTitle:
 		return m.Title()
-	case match.FieldDate:
-		return m.Date()
+	case match.FieldStartAt:
+		return m.StartAt()
+	case match.FieldEndAt:
+		return m.EndAt()
 	case match.FieldLocation:
 		return m.Location()
 	case match.FieldLevel:
@@ -791,8 +833,10 @@ func (m *MatchMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case match.FieldTitle:
 		return m.OldTitle(ctx)
-	case match.FieldDate:
-		return m.OldDate(ctx)
+	case match.FieldStartAt:
+		return m.OldStartAt(ctx)
+	case match.FieldEndAt:
+		return m.OldEndAt(ctx)
 	case match.FieldLocation:
 		return m.OldLocation(ctx)
 	case match.FieldLevel:
@@ -827,12 +871,19 @@ func (m *MatchMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTitle(v)
 		return nil
-	case match.FieldDate:
+	case match.FieldStartAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDate(v)
+		m.SetStartAt(v)
+		return nil
+	case match.FieldEndAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEndAt(v)
 		return nil
 	case match.FieldLocation:
 		v, ok := value.(string)
@@ -976,8 +1027,11 @@ func (m *MatchMutation) ResetField(name string) error {
 	case match.FieldTitle:
 		m.ResetTitle()
 		return nil
-	case match.FieldDate:
-		m.ResetDate()
+	case match.FieldStartAt:
+		m.ResetStartAt()
+		return nil
+	case match.FieldEndAt:
+		m.ResetEndAt()
 		return nil
 	case match.FieldLocation:
 		m.ResetLocation()

@@ -18,10 +18,11 @@ query Users {
 
 # 特定の試合閲覧用
 query Match($id: ID!) {
-  matche(id: $id) {
+  match(id: $id) {
     id
     title
-    date
+    startAt
+    endAt
     location
     level
     participants
@@ -37,7 +38,8 @@ query Matches {
   matches {
     id
     title
-    date
+    startAt
+    endAt
     location
     level
     participants
@@ -53,7 +55,8 @@ query MatchesByCreatorId {
   matchesByCreatorId {
     id
     title
-    date
+    startAt
+    endAt
     location
   }
 }
@@ -93,7 +96,8 @@ query ParticipationsByUserId {
     match {
       id
       title
-      date
+      startAt
+      endAt
       location
     }
   }

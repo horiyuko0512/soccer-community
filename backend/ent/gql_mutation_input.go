@@ -13,7 +13,8 @@ import (
 // CreateMatchInput represents a mutation input for creating matches.
 type CreateMatchInput struct {
 	Title                 string
-	Date                  time.Time
+	StartAt               time.Time
+	EndAt                 time.Time
 	Location              string
 	Level                 match.Level
 	Participants          int
@@ -29,7 +30,8 @@ type CreateMatchInput struct {
 // Mutate applies the CreateMatchInput on the MatchMutation builder.
 func (i *CreateMatchInput) Mutate(m *MatchMutation) {
 	m.SetTitle(i.Title)
-	m.SetDate(i.Date)
+	m.SetStartAt(i.StartAt)
+	m.SetEndAt(i.EndAt)
 	m.SetLocation(i.Location)
 	m.SetLevel(i.Level)
 	m.SetParticipants(i.Participants)
@@ -59,7 +61,8 @@ func (c *MatchCreate) SetInput(i CreateMatchInput) *MatchCreate {
 // UpdateMatchInput represents a mutation input for updating matches.
 type UpdateMatchInput struct {
 	Title                       *string
-	Date                        *time.Time
+	StartAt                     *time.Time
+	EndAt                       *time.Time
 	Location                    *string
 	Level                       *match.Level
 	Participants                *int
@@ -78,8 +81,11 @@ func (i *UpdateMatchInput) Mutate(m *MatchMutation) {
 	if v := i.Title; v != nil {
 		m.SetTitle(*v)
 	}
-	if v := i.Date; v != nil {
-		m.SetDate(*v)
+	if v := i.StartAt; v != nil {
+		m.SetStartAt(*v)
+	}
+	if v := i.EndAt; v != nil {
+		m.SetEndAt(*v)
 	}
 	if v := i.Location; v != nil {
 		m.SetLocation(*v)

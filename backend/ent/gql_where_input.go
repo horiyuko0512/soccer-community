@@ -46,15 +46,25 @@ type MatchWhereInput struct {
 	TitleEqualFold    *string  `json:"titleEqualFold,omitempty"`
 	TitleContainsFold *string  `json:"titleContainsFold,omitempty"`
 
-	// "date" field predicates.
-	Date      *time.Time  `json:"date,omitempty"`
-	DateNEQ   *time.Time  `json:"dateNEQ,omitempty"`
-	DateIn    []time.Time `json:"dateIn,omitempty"`
-	DateNotIn []time.Time `json:"dateNotIn,omitempty"`
-	DateGT    *time.Time  `json:"dateGT,omitempty"`
-	DateGTE   *time.Time  `json:"dateGTE,omitempty"`
-	DateLT    *time.Time  `json:"dateLT,omitempty"`
-	DateLTE   *time.Time  `json:"dateLTE,omitempty"`
+	// "start_at" field predicates.
+	StartAt      *time.Time  `json:"startAt,omitempty"`
+	StartAtNEQ   *time.Time  `json:"startAtNEQ,omitempty"`
+	StartAtIn    []time.Time `json:"startAtIn,omitempty"`
+	StartAtNotIn []time.Time `json:"startAtNotIn,omitempty"`
+	StartAtGT    *time.Time  `json:"startAtGT,omitempty"`
+	StartAtGTE   *time.Time  `json:"startAtGTE,omitempty"`
+	StartAtLT    *time.Time  `json:"startAtLT,omitempty"`
+	StartAtLTE   *time.Time  `json:"startAtLTE,omitempty"`
+
+	// "end_at" field predicates.
+	EndAt      *time.Time  `json:"endAt,omitempty"`
+	EndAtNEQ   *time.Time  `json:"endAtNEQ,omitempty"`
+	EndAtIn    []time.Time `json:"endAtIn,omitempty"`
+	EndAtNotIn []time.Time `json:"endAtNotIn,omitempty"`
+	EndAtGT    *time.Time  `json:"endAtGT,omitempty"`
+	EndAtGTE   *time.Time  `json:"endAtGTE,omitempty"`
+	EndAtLT    *time.Time  `json:"endAtLT,omitempty"`
+	EndAtLTE   *time.Time  `json:"endAtLTE,omitempty"`
 
 	// "location" field predicates.
 	Location             *string  `json:"location,omitempty"`
@@ -285,29 +295,53 @@ func (i *MatchWhereInput) P() (predicate.Match, error) {
 	if i.TitleContainsFold != nil {
 		predicates = append(predicates, match.TitleContainsFold(*i.TitleContainsFold))
 	}
-	if i.Date != nil {
-		predicates = append(predicates, match.DateEQ(*i.Date))
+	if i.StartAt != nil {
+		predicates = append(predicates, match.StartAtEQ(*i.StartAt))
 	}
-	if i.DateNEQ != nil {
-		predicates = append(predicates, match.DateNEQ(*i.DateNEQ))
+	if i.StartAtNEQ != nil {
+		predicates = append(predicates, match.StartAtNEQ(*i.StartAtNEQ))
 	}
-	if len(i.DateIn) > 0 {
-		predicates = append(predicates, match.DateIn(i.DateIn...))
+	if len(i.StartAtIn) > 0 {
+		predicates = append(predicates, match.StartAtIn(i.StartAtIn...))
 	}
-	if len(i.DateNotIn) > 0 {
-		predicates = append(predicates, match.DateNotIn(i.DateNotIn...))
+	if len(i.StartAtNotIn) > 0 {
+		predicates = append(predicates, match.StartAtNotIn(i.StartAtNotIn...))
 	}
-	if i.DateGT != nil {
-		predicates = append(predicates, match.DateGT(*i.DateGT))
+	if i.StartAtGT != nil {
+		predicates = append(predicates, match.StartAtGT(*i.StartAtGT))
 	}
-	if i.DateGTE != nil {
-		predicates = append(predicates, match.DateGTE(*i.DateGTE))
+	if i.StartAtGTE != nil {
+		predicates = append(predicates, match.StartAtGTE(*i.StartAtGTE))
 	}
-	if i.DateLT != nil {
-		predicates = append(predicates, match.DateLT(*i.DateLT))
+	if i.StartAtLT != nil {
+		predicates = append(predicates, match.StartAtLT(*i.StartAtLT))
 	}
-	if i.DateLTE != nil {
-		predicates = append(predicates, match.DateLTE(*i.DateLTE))
+	if i.StartAtLTE != nil {
+		predicates = append(predicates, match.StartAtLTE(*i.StartAtLTE))
+	}
+	if i.EndAt != nil {
+		predicates = append(predicates, match.EndAtEQ(*i.EndAt))
+	}
+	if i.EndAtNEQ != nil {
+		predicates = append(predicates, match.EndAtNEQ(*i.EndAtNEQ))
+	}
+	if len(i.EndAtIn) > 0 {
+		predicates = append(predicates, match.EndAtIn(i.EndAtIn...))
+	}
+	if len(i.EndAtNotIn) > 0 {
+		predicates = append(predicates, match.EndAtNotIn(i.EndAtNotIn...))
+	}
+	if i.EndAtGT != nil {
+		predicates = append(predicates, match.EndAtGT(*i.EndAtGT))
+	}
+	if i.EndAtGTE != nil {
+		predicates = append(predicates, match.EndAtGTE(*i.EndAtGTE))
+	}
+	if i.EndAtLT != nil {
+		predicates = append(predicates, match.EndAtLT(*i.EndAtLT))
+	}
+	if i.EndAtLTE != nil {
+		predicates = append(predicates, match.EndAtLTE(*i.EndAtLTE))
 	}
 	if i.Location != nil {
 		predicates = append(predicates, match.LocationEQ(*i.Location))
