@@ -14,6 +14,7 @@
 - React / TypeScript
 - Next.js
 - Apollo Client
+- Codegen
 
 ## 備考
 基本機能は実装済み、その他タスクを実装中
