@@ -144,16 +144,20 @@ const Match = ({ id }: MatchProps) => {
             )}
             <Button
               className={`w-full ${match.isApplied || !isAlreadyApplied ? "bg-sky-500 hover:bg-sky-600" : "bg-gray-500 cursor-not-allowed"}`}
-              disabled={isAlreadyApplied || !match.isApplied || isApplying}
+              disabled={
+                isAlreadyApplied || !match.isApplied || isApplying || match.creatorID === "true"
+              }
               onClick={isAlreadyApplied ? undefined : handleApply}
             >
-              {isAlreadyApplied
-                ? "この試合は応募済みです"
-                : isApplying
-                  ? "応募中..."
-                  : match.isApplied
-                    ? "この試合に応募する"
-                    : "この応募は停止中です"}
+              {match.creatorID === "true"
+                ? "あなたはこの試合の作成者です"
+                : isAlreadyApplied
+                  ? "この試合は応募済みです"
+                  : isApplying
+                    ? "応募中..."
+                    : match.isApplied
+                      ? "この試合に応募する"
+                      : "この応募は停止中です"}
             </Button>
           </div>
         </CardContent>
