@@ -12,8 +12,20 @@ import {
   useUpdateUserMutation,
   useParticipationsByUserIdQuery,
   useMatchesByCreatorIdQuery,
+  useUpdateParticipationMutation,
+  ParticipationStatus,
 } from "@/graphql/generated/graphql"
 import { formatEventDuration } from "@/lib/utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const status = {
   approved: "承認済み",
@@ -41,12 +53,16 @@ const My = () => {
   })
 
   const [updateUserMutation, { error: mutationError }] = useUpdateUserMutation()
+  const [updateParticipationMutation, { error: cancelError }] = useUpdateParticipationMutation()
 
   const [isEditing, setIsEditing] = useState(false)
   const [editedProfile, setEditedProfile] = useState({
     nickname: userData?.user?.nickname || "",
     introduction: userData?.user?.introduction || "",
   })
+
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [selectedParticipationId, setSelectedParticipationId] = useState<string | null>(null)
 
   if (userLoading || participationsLoading || matchesLoading) {
     return (
@@ -56,7 +72,7 @@ const My = () => {
     )
   }
 
-  if (userError || participationsError || matchesError || mutationError) {
+  if (userError || participationsError || matchesError || mutationError || cancelError) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">
@@ -96,6 +112,28 @@ const My = () => {
       nickname: userData?.user?.nickname || "",
       introduction: userData?.user?.introduction || "",
     })
+  }
+
+  const handleCancelParticipation = (participationId: string) => {
+    setSelectedParticipationId(participationId)
+    setShowCancelDialog(true)
+  }
+
+  const confirmCancelParticipation = async () => {
+    if (!selectedParticipationId) return
+    try {
+      await updateParticipationMutation({
+        variables: {
+          id: selectedParticipationId,
+          input: {
+            status: ParticipationStatus.Cancelled,
+          },
+        },
+      })
+      setShowCancelDialog(false)
+    } catch (error) {
+      console.error("Failed to cancel participation", error)
+    }
   }
 
   return (
@@ -201,6 +239,19 @@ const My = () => {
                       <p className="text-sm text-gray-600">{participation.match.location}</p>
                     </div>
                     <p className="text-sm text-sky-600 mt-2">{status[participation.status]}</p>
+                    <Button
+                      variant="outline"
+                      className="mt-2"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleCancelParticipation(participation.id)
+                      }}
+                      disabled={
+                        participation.status == "cancelled" || participation.status == "rejected"
+                      }
+                    >
+                      キャンセル
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -234,6 +285,28 @@ const My = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* キャンセル確認ダイアログ */}
+      <AlertDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+      >
+        <AlertDialogContent className="sm:max-w-[80%] w-[80%] md:max-w-[610px] rounded-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>参加をキャンセルしますか？</AlertDialogTitle>
+            <AlertDialogDescription>この操作は取り消すことができません。</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>戻る</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCancelParticipation}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              実行する
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }
