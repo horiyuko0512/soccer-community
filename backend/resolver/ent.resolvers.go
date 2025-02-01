@@ -267,13 +267,17 @@ func (r *queryResolver) Nodes(ctx context.Context, ids []string) ([]ent.Noder, e
 
 // Matche is the resolver for the matche field.
 func (r *queryResolver) Match(ctx context.Context, id string) (*model.Match, error) {
-	_, ok := ctx.Value(middleware.UserIdKey).(string)
+	userId, ok := ctx.Value(middleware.UserIdKey).(string)
 	if !ok {
 		return nil, fmt.Errorf("Unauthorized")
 	}
 	match, err := r.client.Match.Get(ctx, uuid.MustParse(id))
 	if err != nil {
 		return nil, fmt.Errorf("failed getting match: %w", err)
+	}
+	isCreator := "true"
+	if userId != match.CreatorID.String() {
+		isCreator = "false"
 	}
 	return &model.Match{
 		ID:           match.ID.String(),
@@ -285,7 +289,7 @@ func (r *queryResolver) Match(ctx context.Context, id string) (*model.Match, err
 		Participants: int32(match.Participants),
 		Fee:          int32(match.Fee),
 		Notes:        match.Notes,
-		CreatorID:    match.CreatorID.String(),
+		CreatorID:    isCreator,
 		IsApplied:    match.IsApplied,
 	}, nil
 }

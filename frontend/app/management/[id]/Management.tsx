@@ -45,7 +45,7 @@ const status = {
   approved: "承認済み",
   cancelled: "キャンセル済み",
   pending: "承認待ち",
-  rejected: "拒否済み",
+  rejected: "却下済み",
 }
 
 const Management = ({ id }: MatchProps) => {
