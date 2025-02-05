@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,7 @@ import { useLoginMutation } from "@/graphql/generated/graphql"
 import { useRouter } from "next/navigation"
 import { loginSchema, LoginFormValues } from "./schema"
 import Link from "next/link"
+import { toast } from "sonner"
 
 const LoginForm = () => {
   const [formData, setFormData] = useState<LoginFormValues>({ email: "", password: "" })
@@ -20,8 +21,7 @@ const LoginForm = () => {
   const [loginMutation, { loading, error }] = useLoginMutation({
     onCompleted: (data) => {
       if (data?.login) {
-        const token: string = data.login
-        console.log("ログイン成功:", token)
+        toast.success("ログインに成功しました")
         setLoginSuccessful(true)
         router.push("/matches")
       }
@@ -51,15 +51,17 @@ const LoginForm = () => {
 
     setErrors({}) // バリデーションエラーをリセット
 
-    try {
-      await loginMutation({
-        variables: { email: formData.email, password: formData.password },
-      })
-    } catch (err) {
-      setErrors({ email: "ログインに失敗しました" })
-      console.error("ログインエラー:", err)
-    }
+    await loginMutation({
+      variables: { email: formData.email, password: formData.password },
+    })
+
   }
+
+  useEffect(() => {
+    if (error) {
+      toast.error("再度実行してください")
+    }
+  }, [error])
 
   return (
     <Card>
@@ -101,13 +103,13 @@ const LoginForm = () => {
             {loading ? (
               <Loader className="animate-spin" />
             ) : loginSuccessful ? (
-              "ログイン完了"
+              "ページを遷移中です"
             ) : (
               "ログイン"
             )}
           </Button>
           {error && (
-            <p className="text-red-500 text-sm">メールアドレスまたはパスワードが間違っています</p>
+            <p className="text-red-500 text-sm flex justify-center">メールアドレスまたはパスワードが間違っています</p>
           )}
         </form>
         <div className="space-y-4 text-center mt-4">

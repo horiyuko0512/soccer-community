@@ -26,6 +26,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { formatDateTimeToISO, formatEventDetails, formatEventDuration } from "@/lib/utils"
+import { toast } from "sonner"
+import { Loader } from "lucide-react"
 
 type MatchProps = {
   id: string
@@ -49,6 +51,12 @@ const status = {
 }
 
 const Management = ({ id }: MatchProps) => {
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [isEditing, setIsEditing] = useState(false)
+  const [showApproveDialog, setShowApproveDialog] = useState(false)
+  const [showRejectDialog, setShowRejectDialog] = useState(false)
+  const [selectedParticipationId, setSelectedParticipationId] = useState<string | null>(null)
+
   const {
     data: matchData,
     loading: matchLoading,
@@ -62,9 +70,24 @@ const Management = ({ id }: MatchProps) => {
     variables: { matchID: id },
     skip: !matchData?.match,
   })
-  const [updateMatchMutation, { error: matchMutationError }] = useUpdateMatchMutation()
-  const [updateParticipationMutation, { error: participationMutationError }] =
-    useUpdateParticipationMutation()
+  const [updateMatchMutation, { error: matchUpdateError, loading: matchUpdateLoading }] = useUpdateMatchMutation({
+    onCompleted: (data) => {
+      if(data?.updateMatch){
+        setIsEditing(false)
+        toast.success("試合情報を更新しました")
+      }
+    }
+  })
+  const [updateParticipationMutation, { error: participationUpdateError, loading: participationUpdateLoading }] =
+    useUpdateParticipationMutation({
+      onCompleted: (data) => {
+        if (data?.updateParticipation) {
+          setShowApproveDialog(false)
+          setShowRejectDialog(false)
+          toast.success("承認却下に成功しました")
+        }
+      }
+  })
 
   const [formData, setFormData] = useState<UpdateMatchFormValues>({
     title: "",
@@ -77,12 +100,6 @@ const Management = ({ id }: MatchProps) => {
     fee: "",
     notes: "",
   })
-
-  const [errors, setErrors] = useState<FormErrors>({})
-  const [isEditing, setIsEditing] = useState(false)
-  const [showApproveDialog, setShowApproveDialog] = useState(false)
-  const [showRejectDialog, setShowRejectDialog] = useState(false)
-  const [selectedParticipationId, setSelectedParticipationId] = useState<string | null>(null)
 
   useEffect(() => {
     if (matchData?.match) {
@@ -126,27 +143,22 @@ const Management = ({ id }: MatchProps) => {
 
     setErrors({})
 
-    try {
-      const { date, ...formDataWithoutDate } = formData
-      const formattedStartAt = formatDateTimeToISO(date, formData.startAt)
-      const formattedEndAt = formatDateTimeToISO(date, formData.endAt)
+    const { date, ...formDataWithoutDate } = formData
+    const formattedStartAt = formatDateTimeToISO(date, formData.startAt)
+    const formattedEndAt = formatDateTimeToISO(date, formData.endAt)
 
-      await updateMatchMutation({
-        variables: {
-          id,
-          input: {
-            ...formDataWithoutDate,
-            startAt: formattedStartAt,
-            endAt: formattedEndAt,
-            participants: parseInt(formData.participants, 10),
-            fee: parseInt(formData.fee, 10),
-          },
+    await updateMatchMutation({
+      variables: {
+        id,
+        input: {
+          ...formDataWithoutDate,
+          startAt: formattedStartAt,
+          endAt: formattedEndAt,
+          participants: parseInt(formData.participants, 10),
+          fee: parseInt(formData.fee, 10),
         },
-      })
-      setIsEditing(false)
-    } catch (err) {
-      console.error("試合更新エラー:", err)
-    }
+      },
+    })
   }
 
   const handleApprove = (participationId: string) => {
@@ -161,37 +173,33 @@ const Management = ({ id }: MatchProps) => {
 
   const confirmApprove = async () => {
     if (!selectedParticipationId) return
-    try {
-      await updateParticipationMutation({
-        variables: {
-          id: selectedParticipationId,
-          input: {
-            status: ParticipationStatus.Approved,
-          },
+    await updateParticipationMutation({
+      variables: {
+        id: selectedParticipationId,
+        input: {
+          status: ParticipationStatus.Approved,
         },
-      })
-      setShowApproveDialog(false)
-    } catch (err) {
-      console.error("承認エラー:", err)
-    }
+      },
+    })
   }
 
   const confirmReject = async () => {
     if (!selectedParticipationId) return
-    try {
-      await updateParticipationMutation({
-        variables: {
-          id: selectedParticipationId,
-          input: {
-            status: ParticipationStatus.Rejected,
-          },
+    await updateParticipationMutation({
+      variables: {
+        id: selectedParticipationId,
+        input: {
+          status: ParticipationStatus.Rejected
         },
-      })
-      setShowRejectDialog(false)
-    } catch (err) {
-      console.error("却下エラー:", err)
-    }
+      },
+    })
   }
+
+  useEffect(() => {
+    if (matchUpdateError || participationUpdateError) {
+      toast.error("再度実行してください")
+    }
+  }, [matchUpdateError, participationUpdateError])
 
   if (matchLoading || participationsLoading) {
     return (
@@ -201,7 +209,7 @@ const Management = ({ id }: MatchProps) => {
     )
   }
 
-  if (matchError || participationsError || matchMutationError || participationMutationError) {
+  if (matchError || participationsError) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">エラーが生じました、再度お試しください</p>
@@ -335,7 +343,9 @@ const Management = ({ id }: MatchProps) => {
                     type="submit"
                     className="flex-1 bg-sky-500 hover:bg-sky-600"
                   >
-                    保存
+                    {matchUpdateLoading ? (
+                      <Loader className="animate-spin" />
+                    ) : "保存"}
                   </Button>
                   <Button
                     type="button"
@@ -345,6 +355,9 @@ const Management = ({ id }: MatchProps) => {
                   >
                     キャンセル
                   </Button>
+                  {matchUpdateError && (
+                    <p className="text-red-500 text-sm flex justify-center">エラーが発生して、編集に失敗しました</p>
+                  )}
                 </div>
               </form>
             </CardContent>
@@ -410,6 +423,9 @@ const Management = ({ id }: MatchProps) => {
                       承認
                     </Button>
                   </div>
+                  {participationUpdateError && (
+                    <p className="text-red-500 text-sm flex justify-center">エラーが発生して、承認却下に失敗しました</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -433,7 +449,9 @@ const Management = ({ id }: MatchProps) => {
               onClick={confirmApprove}
               className="bg-sky-500 hover:bg-sky-600"
             >
-              承認する
+              {participationUpdateLoading ? (
+                <Loader className="animate-spin" />
+              ) : "承認する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -455,7 +473,9 @@ const Management = ({ id }: MatchProps) => {
               onClick={confirmReject}
               className="bg-red-500 hover:bg-red-600"
             >
-              却下する
+              {participationUpdateLoading ? (
+                <Loader className="animate-spin" />
+              ) : "却下する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
