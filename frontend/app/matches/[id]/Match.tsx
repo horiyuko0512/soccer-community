@@ -12,7 +12,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Alert } from "@/components/ui/alert"
 import {
   ParticipationStatus,
   useCreateParticipationMutation,
@@ -20,8 +19,10 @@ import {
   useParticipationByUserIdAndMatchIdQuery,
 } from "@/graphql/generated/graphql"
 import { formatEventDuration } from "@/lib/utils"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { Loader } from "lucide-react"
 
 type MatchProps = {
   id: string
@@ -34,6 +35,10 @@ const levels = [
 ]
 
 const Match = ({ id }: MatchProps) => {
+  const router = useRouter()
+  const [showApplyDialog, setShowApplyDialog] = useState(false)
+  const [participationSuccessful, setParticipationSuccessful] = useState(false)
+
   const { data, loading, error } = useMatchQuery({
     variables: { id },
   })
@@ -47,12 +52,22 @@ const Match = ({ id }: MatchProps) => {
     skip: !data?.match,
   })
 
-  const [createParticipation, { error: mutationError }] = useCreateParticipationMutation()
+  const [createParticipation, { error: createParticipationError, loading: createParticipationLoading }] = useCreateParticipationMutation({
+    onCompleted: (data) => {
+      if (data?.createParticipation){
+        setShowApplyDialog(false)
+        toast.success("応募に成功しました")
+        setParticipationSuccessful(true)
+        router.push("/my")
+      }
+    },
+  })
 
-  const router = useRouter()
-  const [showApplyDialog, setShowApplyDialog] = useState(false)
-  const [isApplying, setIsApplying] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  useEffect(() => {
+    if (createParticipationError) {
+      toast.error("再度実行してください")
+    }
+  }, [createParticipationError])
 
   if (loading || participationLoading) {
     return (
@@ -61,7 +76,7 @@ const Match = ({ id }: MatchProps) => {
       </div>
     )
   }
-  if (error || participationError || mutationError) {
+  if (error || participationError) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">エラーが生じました、再度お試しください</p>
@@ -85,27 +100,15 @@ const Match = ({ id }: MatchProps) => {
   }
 
   const confirmApply = async () => {
-    console.log("応募処理を実行")
-    setIsApplying(true)
-    setErrorMessage(null)
-    try {
-      await createParticipation({
-        variables: {
-          input: {
-            matchID: match.id,
-            userID: "",
-            status: ParticipationStatus.Pending,
-          },
+    await createParticipation({
+      variables: {
+        input: {
+          matchID: match.id,
+          userID: "",
+          status: ParticipationStatus.Pending,
         },
-      })
-      setShowApplyDialog(false)
-    } catch (err) {
-      console.error("応募エラー:", err)
-      setErrorMessage("応募に失敗しました。もう一度お試しください。")
-    } finally {
-      setIsApplying(false)
-      router.push("/my")
-    }
+      },
+    })
   }
 
   return (
@@ -145,7 +148,7 @@ const Match = ({ id }: MatchProps) => {
             <Button
               className={`w-full ${match.isApplied || !isAlreadyApplied ? "bg-sky-500 hover:bg-sky-600" : "bg-gray-500 cursor-not-allowed"}`}
               disabled={
-                isAlreadyApplied || !match.isApplied || isApplying || match.creatorID === "true"
+                isAlreadyApplied || !match.isApplied || participationSuccessful || match.creatorID === "true"
               }
               onClick={isAlreadyApplied ? undefined : handleApply}
             >
@@ -153,27 +156,18 @@ const Match = ({ id }: MatchProps) => {
                 ? "あなたはこの試合の作成者です"
                 : isAlreadyApplied
                   ? "この試合は応募済みです"
-                  : isApplying
-                    ? "応募中..."
+                  : participationSuccessful
+                    ? "ページを遷移中です"
                     : match.isApplied
                       ? "この試合に応募する"
                       : "この応募は停止中です"}
             </Button>
+            {createParticipationError && (
+              <p className="text-red-500 text-sm flex justify-center">エラーが発生して、応募に失敗しました</p>
+            )}
           </div>
         </CardContent>
       </Card>
-
-      {/* エラーメッセージ表示 */}
-      {errorMessage && (
-        <div className="mt-4">
-          <Alert
-            variant="destructive"
-            className="text-red-600"
-          >
-            {errorMessage}
-          </Alert>
-        </div>
-      )}
 
       {/* 応募確認ダイアログ */}
       <AlertDialog
@@ -190,9 +184,11 @@ const Match = ({ id }: MatchProps) => {
             <AlertDialogAction
               onClick={confirmApply}
               className="bg-sky-500 hover:bg-sky-600"
-              disabled={isApplying}
+              disabled={createParticipationLoading}
             >
-              {isApplying ? "応募中..." : "応募する"}
+              {createParticipationLoading ? (
+                <Loader className="animate-spin" />
+              ) : "応募する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

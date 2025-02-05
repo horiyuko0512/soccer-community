@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -26,6 +26,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
+import { Loader } from "lucide-react"
 
 const status = {
   approved: "承認済み",
@@ -52,8 +54,22 @@ const My = () => {
     skip: !participationsData?.participationsByUserId,
   })
 
-  const [updateUserMutation, { error: mutationError }] = useUpdateUserMutation()
-  const [updateParticipationMutation, { error: cancelError }] = useUpdateParticipationMutation()
+  const [updateUserMutation, { error: userUpdateError, loading: userUpdateLoading }] = useUpdateUserMutation({
+    onCompleted: (data) => {
+      if(data?.updateUser) {
+        setIsEditing(false)
+        toast.success("プロフィールを更新しました")
+      }
+    },
+  })
+  const [updateParticipationMutation, { error: cancelError, loading: cancelLoading }] = useUpdateParticipationMutation({
+    onCompleted: (data) => {
+      if(data?.updateParticipation) {
+        setShowCancelDialog(false)
+        toast.success("参加をキャンセルしました")
+      }
+    },
+  })
 
   const [isEditing, setIsEditing] = useState(false)
   const [editedProfile, setEditedProfile] = useState({
@@ -64,6 +80,12 @@ const My = () => {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [selectedParticipationId, setSelectedParticipationId] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (userUpdateError || cancelError) {
+      toast.error("再度実行してください")
+    }
+  }, [userUpdateError, cancelError])
+
   if (userLoading || participationsLoading || matchesLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -72,7 +94,7 @@ const My = () => {
     )
   }
 
-  if (userError || participationsError || matchesError || mutationError || cancelError) {
+  if (userError || participationsError || matchesError) {
     return (
       <div className="flex justify-center items-center h-64">
         <p className="text-lg font-medium text-gray-900">
@@ -91,19 +113,14 @@ const My = () => {
   }
 
   const handleSave = async () => {
-    try {
-      await updateUserMutation({
-        variables: {
-          input: {
-            nickname: editedProfile.nickname,
-            introduction: editedProfile.introduction,
-          },
+    await updateUserMutation({
+      variables: {
+        input: {
+          nickname: editedProfile.nickname,
+          introduction: editedProfile.introduction,
         },
-      })
-      setIsEditing(false)
-    } catch (error) {
-      console.error("Failed to update profile", error)
-    }
+      },
+    })
   }
 
   const handleCancel = () => {
@@ -121,19 +138,14 @@ const My = () => {
 
   const confirmCancelParticipation = async () => {
     if (!selectedParticipationId) return
-    try {
-      await updateParticipationMutation({
-        variables: {
-          id: selectedParticipationId,
-          input: {
-            status: ParticipationStatus.Cancelled,
-          },
+    await updateParticipationMutation({
+      variables: {
+        id: selectedParticipationId,
+        input: {
+          status: ParticipationStatus.Cancelled,
         },
-      })
-      setShowCancelDialog(false)
-    } catch (error) {
-      console.error("Failed to cancel participation", error)
-    }
+      },
+    })
   }
 
   return (
@@ -178,8 +190,11 @@ const My = () => {
                     <Button
                       onClick={handleSave}
                       className="bg-sky-500 hover:bg-sky-600 text-white"
+                      disabled={userUpdateLoading}
                     >
-                      保存
+                      {userUpdateLoading ? (
+                        <Loader className="animate-spin" />
+                      ) : "保存"}
                     </Button>
                     <Button
                       variant="outline"
@@ -187,6 +202,9 @@ const My = () => {
                     >
                       キャンセル
                     </Button>
+                    {userUpdateError && (
+                      <p className="text-red-500 text-sm flex justify-center">エラーが発生して、編集に失敗しました</p>
+                    )}
                   </div>
                 </>
               ) : (
@@ -239,19 +257,21 @@ const My = () => {
                       <p className="text-sm text-gray-600">{participation.match.location}</p>
                     </div>
                     <p className="text-sm text-sky-600 mt-2">{status[participation.status]}</p>
-                    <Button
-                      variant="outline"
-                      className="mt-2"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCancelParticipation(participation.id)
-                      }}
-                      disabled={
-                        participation.status == "cancelled" || participation.status == "rejected"
-                      }
-                    >
-                      キャンセル
-                    </Button>
+                    {participation.status !== "cancelled" && participation.status !== "rejected" && (
+                      <Button
+                        variant="outline"
+                        className="mt-2"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleCancelParticipation(participation.id)
+                        }}
+                      >
+                        キャンセル
+                      </Button>
+                    )}
+                    {cancelError && (
+                      <p className="text-red-500 text-sm flex justify-center">エラーが発生して、キャンセルに失敗しました</p>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -301,8 +321,11 @@ const My = () => {
             <AlertDialogAction
               onClick={confirmCancelParticipation}
               className="bg-red-500 hover:bg-red-600"
+              disabled={cancelLoading}
             >
-              実行する
+              {cancelLoading ? (
+                <Loader className="animate-spin" />
+              ) : "実行する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

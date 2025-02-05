@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,7 @@ import { useCreateUserMutation } from "@/graphql/generated/graphql"
 import { useRouter } from "next/navigation"
 import { registerSchema, RegisterFormValues } from "./schema"
 import Link from "next/link"
+import { toast } from "sonner"
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState<RegisterFormValues>({
@@ -26,6 +27,7 @@ const RegisterForm = () => {
 
   const [createUserMutation, { loading, error }] = useCreateUserMutation({
     onCompleted: () => {
+      toast.success("登録に成功しました")
       setRegistrationSuccessful(true)
       router.push("/matches")
     },
@@ -53,22 +55,23 @@ const RegisterForm = () => {
 
     setErrors({}) // バリデーションエラーをリセット
 
-    try {
-      await createUserMutation({
-        variables: {
-          input: {
-            email: formData.email,
-            passwordHash: formData.password,
-            nickname: formData.nickname,
-            introduction: formData.introduction,
-          },
+    await createUserMutation({
+      variables: {
+        input: {
+          email: formData.email,
+          passwordHash: formData.password,
+          nickname: formData.nickname,
+          introduction: formData.introduction,
         },
-      })
-    } catch (err) {
-      setErrors({ email: "登録に失敗しました、もう一度お願いします" })
-      console.error("登録エラー:", err)
-    }
+      },
+    })
   }
+
+  useEffect(() => {
+    if (error) {
+      toast.error("再度実行してください")
+    }
+  }, [error])
 
   return (
     <Card>
@@ -150,13 +153,13 @@ const RegisterForm = () => {
             {loading ? (
               <Loader className="animate-spin" />
             ) : registrationSuccessful ? (
-              "登録完了"
+              "ページを遷移中です"
             ) : (
               "登録する"
             )}
           </Button>
           {error && (
-            <p className="text-red-500 text-sm">登録に失敗しました、もう一度お願いします</p>
+            <p className="text-red-500 text-sm flex justify-center">エラーが発生して、登録に失敗しました</p>
           )}
 
           <div className="text-center text-sm text-sky-600">

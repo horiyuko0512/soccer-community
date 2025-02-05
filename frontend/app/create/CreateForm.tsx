@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,6 +11,7 @@ import { createMatchSchema, CreateMatchFormValues } from "./schema"
 import { useRouter } from "next/navigation"
 import { formatDateTimeToISO } from "@/lib/utils"
 import { Loader } from "lucide-react"
+import { toast } from "sonner"
 
 type FormErrors = {
   [K in keyof CreateMatchFormValues]?: string
@@ -34,8 +35,9 @@ const CreateForm = () => {
   const [createMatchMutation, { loading, error }] = useCreateMatchMutation({
     onCompleted: (data) => {
       if (data?.createMatch) {
-        console.log("試合作成成功:", data.createMatch)
+        toast.success("試合作成に成功ました")
         setCreateSuccessful(true)
+        router.push("/matches")
       }
     },
   })
@@ -65,28 +67,29 @@ const CreateForm = () => {
 
     setErrors({})
 
-    try {
-      const { date, ...formDataWithoutDate } = formData
-      const formattedStartAt = formatDateTimeToISO(date, formData.startAt)
-      const formattedEndAt = formatDateTimeToISO(date, formData.endAt)
+    const { date, ...formDataWithoutDate } = formData
+    const formattedStartAt = formatDateTimeToISO(date, formData.startAt)
+    const formattedEndAt = formatDateTimeToISO(date, formData.endAt)
 
-      await createMatchMutation({
-        variables: {
-          input: {
-            ...formDataWithoutDate,
-            startAt: formattedStartAt,
-            endAt: formattedEndAt,
-            participants: parseInt(formData.participants, 10),
-            fee: parseInt(formData.fee, 10),
-            creatorID: "",
-          },
+    await createMatchMutation({
+      variables: {
+        input: {
+          ...formDataWithoutDate,
+          startAt: formattedStartAt,
+          endAt: formattedEndAt,
+          participants: parseInt(formData.participants, 10),
+          fee: parseInt(formData.fee, 10),
+          creatorID: "",
         },
-      })
-      router.push("/matches")
-    } catch (err) {
-      console.error("試合作成エラー:", err)
-    }
+      },
+    })
   }
+
+  useEffect(() => {
+    if (error) {
+      toast.error("再度実行してください")
+    }
+  }, [error])
 
   const levelOptions = [
     { id: MatchLevel.Beginner, label: "初級" },
@@ -227,13 +230,13 @@ const CreateForm = () => {
             {loading ? (
               <Loader className="animate-spin" />
             ) : createSuccessful ? (
-              "作成完了"
+              "ページを遷移中です"
             ) : (
               "試合を作成する"
             )}
           </Button>
           {error && (
-            <p className="text-red-500 text-sm">エラーが発生しました。もう一度お試しください。</p>
+            <p className="text-red-500 text-sm flex justify-center">エラーが発生して、登録に失敗しました</p>
           )}
         </form>
       </CardContent>
