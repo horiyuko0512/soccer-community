@@ -240,67 +240,76 @@ const My = () => {
           </TabsList>
           <TabsContent value="applied">
             <div className="space-y-4 mt-4">
-              {participationsData?.participationsByUserId.map((participation) => (
-                <Card key={participation.id}>
-                  <CardContent
-                    className="p-4"
-                    onClick={() => router.push(`/matches/${participation.match.id}`)}
-                  >
-                    <h3 className="font-medium mb-2">{participation.match.title}</h3>
-                    <div className="flex flex-col">
-                      <p className="text-sm text-gray-600">
-                        {formatEventDuration(
-                          participation.match.startAt,
-                          participation.match.endAt,
-                        )}
-                      </p>
-                      <p className="text-sm text-gray-600">{participation.match.location}</p>
-                    </div>
-                    <p className="text-sm text-sky-600 mt-2">{status[participation.status]}</p>
-                    {participation.status !== "cancelled" && participation.status !== "rejected" && (
-                      <Button
-                        variant="outline"
-                        className="mt-2"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleCancelParticipation(participation.id)
-                        }}
-                      >
-                        キャンセル
-                      </Button>
-                    )}
-                    {cancelError && (
-                      <p className="text-red-500 text-sm flex justify-center">エラーが発生して、キャンセルに失敗しました</p>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-          <TabsContent value="created">
-            <div className="space-y-4 mt-4">
-              {matchesData?.matchesByCreatorId.map((match) => (
-                <Card key={match.id}>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium mb-2">{match.title}</h3>
-                    <div className="flex flex-col">
-                      <p className="text-sm text-gray-600">
-                        {formatEventDuration(match.startAt, match.endAt)}
-                      </p>
-                      <p className="text-sm text-gray-600">{match.location}</p>
-                      <div className="mt-2">
+              {participationsData?.participationsByUserId.length === 0 ? (
+                <p className="text-center text-gray-600 pt-3">応募した試合はありません</p>
+              ) : (
+                participationsData?.participationsByUserId.map((participation) => (
+                  <Card key={participation.id}>
+                    <CardContent
+                      className="p-4"
+                      onClick={() => router.push(`/matches/${participation.match.id}`)}
+                    >
+                      <h3 className="font-medium mb-2">{participation.match.title}</h3>
+                      <div className="flex flex-col">
+                        <p className="text-sm text-gray-600">
+                          {formatEventDuration(
+                            participation.match.startAt,
+                            participation.match.endAt,
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-600">{participation.match.location}</p>
+                      </div>
+                      <p className="text-sm text-sky-600 mt-2">{status[participation.status]}</p>
+                      {participation.status !== "cancelled" && participation.status !== "rejected" && (
                         <Button
                           variant="outline"
-                          className="text-sm text-white bg-sky-500 hover:bg-sky-600"
-                          onClick={() => router.push(`/management/${match.id}`)}
+                          className="mt-2"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleCancelParticipation(participation.id)
+                          }}
                         >
-                          管理する
+                          キャンセル
                         </Button>
+                      )}
+                      {cancelError && (
+                        <p className="text-red-500 text-sm flex justify-center">エラーが発生して、キャンセルに失敗しました</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="created">
+            <div className="space-y-4 mt-4">
+              {matchesData?.matchesByCreatorId.length === 0 ? (
+                <p className="text-center text-gray-600 pt-3">作成した試合はありません</p>
+              ) : (
+                matchesData?.matchesByCreatorId.map((match) => (
+                  <Card key={match.id}>
+                    <CardContent className="p-4">
+                      <h3 className="font-medium mb-2">{match.title}</h3>
+                      <div className="flex flex-col">
+                        <p className="text-sm text-gray-600">
+                          {formatEventDuration(match.startAt, match.endAt)}
+                        </p>
+                        <p className="text-sm text-gray-600">{match.location}</p>
+                        <div className="mt-2">
+                          <Button
+                            variant="outline"
+                            className="text-sm text-white bg-sky-500 hover:bg-sky-600"
+                            onClick={() => router.push(`/management/${match.id}`)}
+                          >
+                            管理する
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </TabsContent>
         </Tabs>
