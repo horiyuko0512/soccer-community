@@ -394,7 +394,7 @@ const Management = ({ id }: MatchProps) => {
 
       <div className="space-y-4 mt-8">
         {participationsData?.participationsByMatchId.length === 0 ? (
-          <p className="text-center text-gray-600">まだ申請がありません</p>
+          <p className="text-center text-gray-600 pt-3">まだ申請がありません</p>
         ) : (
           participationsData?.participationsByMatchId.map((participation) => (
             <Card key={participation.id}>
