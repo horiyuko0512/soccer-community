@@ -2,7 +2,9 @@
 
 import { ApolloNextAppProvider } from "@apollo/experimental-nextjs-app-support"
 import { makeClient } from "./apollo"
+import { useCookie } from "@/context/CookieContext"
 
 export default function ClientProvider({ children }: { children: React.ReactNode }) {
-  return <ApolloNextAppProvider makeClient={makeClient}>{children}</ApolloNextAppProvider>
+  const { token } = useCookie()
+  return <ApolloNextAppProvider makeClient={() => makeClient(token)}>{children}</ApolloNextAppProvider>
 }
