@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import ClientProvider from "@/graphql/client/ClientProvider"
 import { Toaster } from "@/components/ui/sonner"
+import { CookieProvider } from "@/context/CookieContext"
+import { cookies } from "next/headers"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,18 +21,23 @@ export const metadata: Metadata = {
   description: "Soccer Community",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get("jwt-token")?.value || null
+
   return (
     <html lang="ja">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-sky-50`}
       >
-        <ClientProvider>{children}</ClientProvider>
-        <Toaster richColors />
+        <CookieProvider token={token}>
+          <ClientProvider>{children}</ClientProvider>
+          <Toaster richColors />
+        </CookieProvider>
       </body>
     </html>
   )

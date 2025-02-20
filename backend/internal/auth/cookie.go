@@ -15,6 +15,7 @@ func SetCookie(ctx context.Context,token string) {
 	w, ok := ctx.Value(ResponseWriterKey).(http.ResponseWriter)
 	if !ok {
 		fmt.Println("ResponseWriter not found")
+		return
 	}
 
 	http.SetCookie(w, &http.Cookie{

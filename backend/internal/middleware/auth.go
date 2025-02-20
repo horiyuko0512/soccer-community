@@ -15,13 +15,13 @@ const UserIdKey contextKey = "userId"
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie(os.Getenv("COOKIE_NAME"))
-		if err != nil {
-			next.ServeHTTP(w, r)
-			return
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+				next.ServeHTTP(w, r)
+				return
 		}
 
-		tokenString := cookie.Value
+		tokenString := authHeader[len("Bearer "):]
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
