@@ -27,7 +27,8 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const cookieStore = await cookies()
-  const token = cookieStore.get("jwt-token")?.value || null
+  const cookieName = process.env.COOKIE_NAME || ""
+  const token = cookieStore.get(cookieName)?.value || null
 
   return (
     <html lang="ja">
