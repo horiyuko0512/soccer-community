@@ -6,7 +6,6 @@ import { setContext } from '@apollo/client/link/context';
 export const makeClient = (token: string | null) => {
   const httpLink = new HttpLink({
     uri: "http://localhost:8080/query",
-    // credentials: "include",
   })
   const errorLink = onError(({ graphQLErrors, networkError }) => {
     if (graphQLErrors)

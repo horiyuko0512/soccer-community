@@ -7,23 +7,27 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader } from "lucide-react"
 import { useLoginMutation } from "@/graphql/generated/graphql"
-import { useRouter } from "next/navigation"
 import { loginSchema, LoginFormValues } from "./schema"
 import Link from "next/link"
 import { toast } from "sonner"
+import { updateToken } from "./actions"
 
 const LoginForm = () => {
   const [formData, setFormData] = useState<LoginFormValues>({ email: "", password: "" })
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({})
   const [loginSuccessful, setLoginSuccessful] = useState(false)
-  const router = useRouter()
 
   const [loginMutation, { loading, error }] = useLoginMutation({
-    onCompleted: (data) => {
+    onCompleted: async (data) => {
       if (data?.login) {
-        toast.success("ログインに成功しました")
-        setLoginSuccessful(true)
-        router.push("/matches")
+        setLoginSuccessful(true);
+        const result = await updateToken(data.login)
+        if (result.success) {
+          toast.success("ログインに成功しました")
+          window.location.href = "/matches";
+        } else {
+          toast.error("ログインに失敗しました");
+        }
       }
     },
   })

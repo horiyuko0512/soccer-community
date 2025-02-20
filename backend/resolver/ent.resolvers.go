@@ -250,7 +250,7 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 		return "トークンの生成に失敗しました", fmt.Errorf("failed to generate token: %w", err)
 	}
 	//Cookieの設定
-	auth.SetCookie(ctx, token)
+	// auth.SetCookie(ctx, token)
 
 	return token, nil
 }
