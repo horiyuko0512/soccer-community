@@ -27,13 +27,13 @@ const RegisterForm = () => {
   const [createUserMutation, { loading, error }] = useCreateUserMutation({
     onCompleted: async (data) => {
       if (data?.createUser) {
-        setRegistrationSuccessful(true);
+        setRegistrationSuccessful(true)
         const result = await updateToken(data.createUser)
         if (result.success) {
           toast.success("登録に成功しました")
-          window.location.href = "/matches";
+          window.location.href = "/matches"
         } else {
-          toast.error("登録に失敗しました");
+          toast.error("登録に失敗しました")
         }
       }
     },
@@ -165,7 +165,9 @@ const RegisterForm = () => {
             )}
           </Button>
           {error && (
-            <p className="text-red-500 text-sm flex justify-center">エラーが発生して、登録に失敗しました</p>
+            <p className="text-red-500 text-sm flex justify-center">
+              エラーが発生して、登録に失敗しました
+            </p>
           )}
 
           <div className="text-center text-sm text-sky-600">

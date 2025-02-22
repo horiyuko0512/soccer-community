@@ -236,7 +236,9 @@ const CreateForm = () => {
             )}
           </Button>
           {error && (
-            <p className="text-red-500 text-sm flex justify-center">エラーが発生して、登録に失敗しました</p>
+            <p className="text-red-500 text-sm flex justify-center">
+              エラーが発生して、登録に失敗しました
+            </p>
           )}
         </form>
       </CardContent>

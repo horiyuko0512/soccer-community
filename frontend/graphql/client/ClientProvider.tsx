@@ -6,5 +6,7 @@ import { useCookie } from "@/context/CookieContext"
 
 export default function ClientProvider({ children }: { children: React.ReactNode }) {
   const { token } = useCookie()
-  return <ApolloNextAppProvider makeClient={() => makeClient(token)}>{children}</ApolloNextAppProvider>
+  return (
+    <ApolloNextAppProvider makeClient={() => makeClient(token)}>{children}</ApolloNextAppProvider>
+  )
 }

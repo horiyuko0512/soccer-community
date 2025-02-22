@@ -8,12 +8,11 @@ interface CookieContextType {
 
 const CookieContext = createContext<CookieContextType | undefined>(undefined)
 
-export const CookieProvider: React.FC<{ children: React.ReactNode; token: string | null }> = ({ children, token }) => {
-  return (
-    <CookieContext.Provider value={{ token }}>
-      {children}
-    </CookieContext.Provider>
-  )
+export const CookieProvider: React.FC<{ children: React.ReactNode; token: string | null }> = ({
+  children,
+  token,
+}) => {
+  return <CookieContext.Provider value={{ token }}>{children}</CookieContext.Provider>
 }
 
 export const useCookie = (): CookieContextType => {

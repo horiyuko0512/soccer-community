@@ -54,22 +54,24 @@ const My = () => {
     skip: !participationsData?.participationsByUserId,
   })
 
-  const [updateUserMutation, { error: userUpdateError, loading: userUpdateLoading }] = useUpdateUserMutation({
-    onCompleted: (data) => {
-      if(data?.updateUser) {
-        setIsEditing(false)
-        toast.success("プロフィールを更新しました")
-      }
-    },
-  })
-  const [updateParticipationMutation, { error: cancelError, loading: cancelLoading }] = useUpdateParticipationMutation({
-    onCompleted: (data) => {
-      if(data?.updateParticipation) {
-        setShowCancelDialog(false)
-        toast.success("参加をキャンセルしました")
-      }
-    },
-  })
+  const [updateUserMutation, { error: userUpdateError, loading: userUpdateLoading }] =
+    useUpdateUserMutation({
+      onCompleted: (data) => {
+        if (data?.updateUser) {
+          setIsEditing(false)
+          toast.success("プロフィールを更新しました")
+        }
+      },
+    })
+  const [updateParticipationMutation, { error: cancelError, loading: cancelLoading }] =
+    useUpdateParticipationMutation({
+      onCompleted: (data) => {
+        if (data?.updateParticipation) {
+          setShowCancelDialog(false)
+          toast.success("参加をキャンセルしました")
+        }
+      },
+    })
 
   const [isEditing, setIsEditing] = useState(false)
   const [editedProfile, setEditedProfile] = useState({
@@ -192,9 +194,7 @@ const My = () => {
                       className="bg-sky-500 hover:bg-sky-600 text-white"
                       disabled={userUpdateLoading}
                     >
-                      {userUpdateLoading ? (
-                        <Loader className="animate-spin" />
-                      ) : "保存"}
+                      {userUpdateLoading ? <Loader className="animate-spin" /> : "保存"}
                     </Button>
                     <Button
                       variant="outline"
@@ -203,7 +203,9 @@ const My = () => {
                       キャンセル
                     </Button>
                     {userUpdateError && (
-                      <p className="text-red-500 text-sm flex justify-center">エラーが発生して、編集に失敗しました</p>
+                      <p className="text-red-500 text-sm flex justify-center">
+                        エラーが発生して、編集に失敗しました
+                      </p>
                     )}
                   </div>
                 </>
@@ -260,20 +262,23 @@ const My = () => {
                         <p className="text-sm text-gray-600">{participation.match.location}</p>
                       </div>
                       <p className="text-sm text-sky-600 mt-2">{status[participation.status]}</p>
-                      {participation.status !== "cancelled" && participation.status !== "rejected" && (
-                        <Button
-                          variant="outline"
-                          className="mt-2"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleCancelParticipation(participation.id)
-                          }}
-                        >
-                          キャンセル
-                        </Button>
-                      )}
+                      {participation.status !== "cancelled" &&
+                        participation.status !== "rejected" && (
+                          <Button
+                            variant="outline"
+                            className="mt-2"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCancelParticipation(participation.id)
+                            }}
+                          >
+                            キャンセル
+                          </Button>
+                        )}
                       {cancelError && (
-                        <p className="text-red-500 text-sm flex justify-center">エラーが発生して、キャンセルに失敗しました</p>
+                        <p className="text-red-500 text-sm flex justify-center">
+                          エラーが発生して、キャンセルに失敗しました
+                        </p>
                       )}
                     </CardContent>
                   </Card>
@@ -332,9 +337,7 @@ const My = () => {
               className="bg-red-500 hover:bg-red-600"
               disabled={cancelLoading}
             >
-              {cancelLoading ? (
-                <Loader className="animate-spin" />
-              ) : "実行する"}
+              {cancelLoading ? <Loader className="animate-spin" /> : "実行する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

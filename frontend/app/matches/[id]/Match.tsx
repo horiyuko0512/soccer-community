@@ -52,9 +52,12 @@ const Match = ({ id }: MatchProps) => {
     skip: !data?.match,
   })
 
-  const [createParticipation, { error: createParticipationError, loading: createParticipationLoading }] = useCreateParticipationMutation({
+  const [
+    createParticipation,
+    { error: createParticipationError, loading: createParticipationLoading },
+  ] = useCreateParticipationMutation({
     onCompleted: (data) => {
-      if (data?.createParticipation){
+      if (data?.createParticipation) {
         setShowApplyDialog(false)
         toast.success("応募に成功しました")
         setParticipationSuccessful(true)
@@ -148,7 +151,10 @@ const Match = ({ id }: MatchProps) => {
             <Button
               className={`w-full ${match.isApplied || !isAlreadyApplied ? "bg-sky-500 hover:bg-sky-600" : "bg-gray-500 cursor-not-allowed"}`}
               disabled={
-                isAlreadyApplied || !match.isApplied || participationSuccessful || match.creatorID === "true"
+                isAlreadyApplied ||
+                !match.isApplied ||
+                participationSuccessful ||
+                match.creatorID === "true"
               }
               onClick={isAlreadyApplied ? undefined : handleApply}
             >
@@ -163,7 +169,9 @@ const Match = ({ id }: MatchProps) => {
                       : "この応募は停止中です"}
             </Button>
             {createParticipationError && (
-              <p className="text-red-500 text-sm flex justify-center">エラーが発生して、応募に失敗しました</p>
+              <p className="text-red-500 text-sm flex justify-center">
+                エラーが発生して、応募に失敗しました
+              </p>
             )}
           </div>
         </CardContent>
@@ -186,9 +194,7 @@ const Match = ({ id }: MatchProps) => {
               className="bg-sky-500 hover:bg-sky-600"
               disabled={createParticipationLoading}
             >
-              {createParticipationLoading ? (
-                <Loader className="animate-spin" />
-              ) : "応募する"}
+              {createParticipationLoading ? <Loader className="animate-spin" /> : "応募する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
