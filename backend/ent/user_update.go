@@ -93,6 +93,26 @@ func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
 	return uu
 }
 
+// SetRefreshToken sets the "refresh_token" field.
+func (uu *UserUpdate) SetRefreshToken(s string) *UserUpdate {
+	uu.mutation.SetRefreshToken(s)
+	return uu
+}
+
+// SetNillableRefreshToken sets the "refresh_token" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableRefreshToken(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetRefreshToken(*s)
+	}
+	return uu
+}
+
+// ClearRefreshToken clears the value of the "refresh_token" field.
+func (uu *UserUpdate) ClearRefreshToken() *UserUpdate {
+	uu.mutation.ClearRefreshToken()
+	return uu
+}
+
 // AddMatchIDs adds the "matches" edge to the Match entity by IDs.
 func (uu *UserUpdate) AddMatchIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddMatchIDs(ids...)
@@ -257,6 +277,12 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uu.mutation.RefreshToken(); ok {
+		_spec.SetField(user.FieldRefreshToken, field.TypeString, value)
+	}
+	if uu.mutation.RefreshTokenCleared() {
+		_spec.ClearField(user.FieldRefreshToken, field.TypeString)
 	}
 	if uu.mutation.MatchesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -427,6 +453,26 @@ func (uuo *UserUpdateOne) SetNillableIntroduction(s *string) *UserUpdateOne {
 // SetUpdatedAt sets the "updated_at" field.
 func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
 	uuo.mutation.SetUpdatedAt(t)
+	return uuo
+}
+
+// SetRefreshToken sets the "refresh_token" field.
+func (uuo *UserUpdateOne) SetRefreshToken(s string) *UserUpdateOne {
+	uuo.mutation.SetRefreshToken(s)
+	return uuo
+}
+
+// SetNillableRefreshToken sets the "refresh_token" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableRefreshToken(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetRefreshToken(*s)
+	}
+	return uuo
+}
+
+// ClearRefreshToken clears the value of the "refresh_token" field.
+func (uuo *UserUpdateOne) ClearRefreshToken() *UserUpdateOne {
+	uuo.mutation.ClearRefreshToken()
 	return uuo
 }
 
@@ -624,6 +670,12 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := uuo.mutation.RefreshToken(); ok {
+		_spec.SetField(user.FieldRefreshToken, field.TypeString, value)
+	}
+	if uuo.mutation.RefreshTokenCleared() {
+		_spec.ClearField(user.FieldRefreshToken, field.TypeString)
 	}
 	if uuo.mutation.MatchesCleared() {
 		edge := &sqlgraph.EdgeSpec{

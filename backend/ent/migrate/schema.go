@@ -110,6 +110,7 @@ var (
 		{Name: "introduction", Type: field.TypeString, Size: 500},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "refresh_token", Type: field.TypeString, Unique: true, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -118,9 +119,9 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "user_id_email",
+				Name:    "user_id_email_refresh_token",
 				Unique:  true,
-				Columns: []*schema.Column{UsersColumns[0], UsersColumns[2]},
+				Columns: []*schema.Column{UsersColumns[0], UsersColumns[2], UsersColumns[7]},
 			},
 		},
 	}

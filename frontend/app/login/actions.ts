@@ -8,10 +8,10 @@ export async function updateToken(newToken: string) {
   cookieStore.set({
     name: cookieName,
     value: newToken,
-    httpOnly: false,
+    httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    expires: new Date(Date.now() + 30 * 60 * 1000),
+    expires: new Date(Date.now() + 15 * 60 * 1000),
   });
   return { success: true }
 }

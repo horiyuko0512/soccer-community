@@ -249,8 +249,23 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 	if err != nil {
 		return "トークンの生成に失敗しました", fmt.Errorf("failed to generate token: %w", err)
 	}
+
+	//リフレッシュトークンの生成
+	refresh_token, err := auth.GenerateRefreshToken()
+	if err != nil {
+		return "リフレッシュトークンの生成に失敗しました", fmt.Errorf("failed to generate refresh token: %w", err)
+	}
+
+	//リフレッシュトークンの保存
+	_, err = r.client.User.UpdateOneID(user.ID).
+		SetRefreshToken(refresh_token).
+		Save(ctx)
+	if err != nil {
+		return "リフレッシュトークンの保存に失敗しました", fmt.Errorf("failed to save refresh token: %w", err)
+	}
+
 	//Cookieの設定
-	// auth.SetCookie(ctx, token)
+	auth.SetCookie(ctx, refresh_token)
 
 	return token, nil
 }

@@ -57,6 +57,11 @@ const LoginForm = () => {
 
     await loginMutation({
       variables: { email: formData.email, password: formData.password },
+      context: {
+        fetchOptions: {
+          credentials: "include"
+        }
+      }
     })
 
   }

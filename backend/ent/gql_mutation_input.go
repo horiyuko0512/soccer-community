@@ -208,6 +208,7 @@ type CreateUserInput struct {
 	Introduction         string
 	CreatedAt            *time.Time
 	UpdatedAt            *time.Time
+	RefreshToken         *string
 	MatchIDs             []uuid.UUID
 	UserParticipationIDs []uuid.UUID
 }
@@ -223,6 +224,9 @@ func (i *CreateUserInput) Mutate(m *UserMutation) {
 	}
 	if v := i.UpdatedAt; v != nil {
 		m.SetUpdatedAt(*v)
+	}
+	if v := i.RefreshToken; v != nil {
+		m.SetRefreshToken(*v)
 	}
 	if v := i.MatchIDs; len(v) > 0 {
 		m.AddMatchIDs(v...)
@@ -245,6 +249,8 @@ type UpdateUserInput struct {
 	PasswordHash               *string
 	Introduction               *string
 	UpdatedAt                  *time.Time
+	ClearRefreshToken          bool
+	RefreshToken               *string
 	ClearMatches               bool
 	AddMatchIDs                []uuid.UUID
 	RemoveMatchIDs             []uuid.UUID
@@ -269,6 +275,12 @@ func (i *UpdateUserInput) Mutate(m *UserMutation) {
 	}
 	if v := i.UpdatedAt; v != nil {
 		m.SetUpdatedAt(*v)
+	}
+	if i.ClearRefreshToken {
+		m.ClearRefreshToken()
+	}
+	if v := i.RefreshToken; v != nil {
+		m.SetRefreshToken(*v)
 	}
 	if i.ClearMatches {
 		m.ClearMatches()
