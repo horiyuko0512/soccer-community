@@ -27,6 +27,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldRefreshToken holds the string denoting the refresh_token field in the database.
+	FieldRefreshToken = "refresh_token"
 	// EdgeMatches holds the string denoting the matches edge name in mutations.
 	EdgeMatches = "matches"
 	// EdgeUserParticipation holds the string denoting the user_participation edge name in mutations.
@@ -58,6 +60,7 @@ var Columns = []string{
 	FieldIntroduction,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldRefreshToken,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -125,6 +128,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByRefreshToken orders the results by the refresh_token field.
+func ByRefreshToken(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRefreshToken, opts...).ToFunc()
 }
 
 // ByMatchesCount orders the results by matches count.

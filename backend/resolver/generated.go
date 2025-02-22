@@ -119,6 +119,7 @@ type ComplexityRoot struct {
 		Matches           func(childComplexity int) int
 		NickName          func(childComplexity int) int
 		PasswordHash      func(childComplexity int) int
+		RefreshToken      func(childComplexity int) int
 		UpdatedAt         func(childComplexity int) int
 		UserParticipation func(childComplexity int) int
 	}
@@ -129,7 +130,7 @@ type MutationResolver interface {
 	UpdateMatch(ctx context.Context, id string, input model.UpdateMatchInput) (*model.Match, error)
 	CreateParticipation(ctx context.Context, input model.CreateParticipationInput) (*model.Participation, error)
 	UpdateParticipation(ctx context.Context, id string, input model.UpdateParticipationInput) (*model.Participation, error)
-	CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error)
+	CreateUser(ctx context.Context, input model.CreateUserInput) (string, error)
 	UpdateUser(ctx context.Context, input model.UpdateUserInput) (*model.User, error)
 	Login(ctx context.Context, email string, password string) (string, error)
 }
@@ -603,6 +604,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.PasswordHash(childComplexity), true
 
+	case "User.refreshToken":
+		if e.complexity.User.RefreshToken == nil {
+			break
+		}
+
+		return e.complexity.User.RefreshToken(childComplexity), true
+
 	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
 			break
@@ -774,6 +782,7 @@ input CreateUserInput {
   introduction: String!
   createdAt: Time
   updatedAt: Time
+  refreshToken: String
   matchIDs: [ID!]
   userParticipationIDs: [ID!]
 }
@@ -1142,7 +1151,7 @@ type Mutation {
   updateMatch(id: ID!, input: UpdateMatchInput!): Match!
   createParticipation(input: CreateParticipationInput!): Participation!
   updateParticipation(id: ID!, input: UpdateParticipationInput!): Participation!
-  createUser(input: CreateUserInput!): User!
+  createUser(input: CreateUserInput!): String!
   updateUser(input: UpdateUserInput!): User!
   login(email: String!, password: String!): String!
 }
@@ -1190,6 +1199,8 @@ input UpdateUserInput {
   passwordHash: String
   introduction: String
   updatedAt: Time
+  refreshToken: String
+  clearRefreshToken: Boolean
   addMatchIDs: [ID!]
   removeMatchIDs: [ID!]
   clearMatches: Boolean
@@ -1205,6 +1216,7 @@ type User implements Node {
   introduction: String!
   createdAt: Time!
   updatedAt: Time!
+  refreshToken: String
   matches: [Match!]
   userParticipation: [Participation!]
 }
@@ -1313,6 +1325,24 @@ input UserWhereInput {
   updatedAtGTE: Time
   updatedAtLT: Time
   updatedAtLTE: Time
+  """
+  refresh_token field predicates
+  """
+  refreshToken: String
+  refreshTokenNEQ: String
+  refreshTokenIn: [String!]
+  refreshTokenNotIn: [String!]
+  refreshTokenGT: String
+  refreshTokenGTE: String
+  refreshTokenLT: String
+  refreshTokenLTE: String
+  refreshTokenContains: String
+  refreshTokenHasPrefix: String
+  refreshTokenHasSuffix: String
+  refreshTokenIsNil: Boolean
+  refreshTokenNotNil: Boolean
+  refreshTokenEqualFold: String
+  refreshTokenContainsFold: String
   """
   matches edge predicates
   """
@@ -2387,6 +2417,8 @@ func (ec *executionContext) fieldContext_Match_creator(_ context.Context, field 
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_User_refreshToken(ctx, field)
 			case "matches":
 				return ec.fieldContext_User_matches(ctx, field)
 			case "userParticipation":
@@ -2803,9 +2835,9 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.User)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋhoriyuko0512ᚋsoccerᚑcommunityᚋresolverᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2815,27 +2847,7 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_User_id(ctx, field)
-			case "nickname":
-				return ec.fieldContext_User_nickname(ctx, field)
-			case "email":
-				return ec.fieldContext_User_email(ctx, field)
-			case "passwordHash":
-				return ec.fieldContext_User_passwordHash(ctx, field)
-			case "introduction":
-				return ec.fieldContext_User_introduction(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_User_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_User_updatedAt(ctx, field)
-			case "matches":
-				return ec.fieldContext_User_matches(ctx, field)
-			case "userParticipation":
-				return ec.fieldContext_User_userParticipation(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	defer func() {
@@ -2905,6 +2917,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_User_refreshToken(ctx, field)
 			case "matches":
 				return ec.fieldContext_User_matches(ctx, field)
 			case "userParticipation":
@@ -3469,6 +3483,8 @@ func (ec *executionContext) fieldContext_Participation_user(_ context.Context, f
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_User_refreshToken(ctx, field)
 			case "matches":
 				return ec.fieldContext_User_matches(ctx, field)
 			case "userParticipation":
@@ -4280,6 +4296,8 @@ func (ec *executionContext) fieldContext_Query_user(_ context.Context, field gra
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_User_refreshToken(ctx, field)
 			case "matches":
 				return ec.fieldContext_User_matches(ctx, field)
 			case "userParticipation":
@@ -4344,6 +4362,8 @@ func (ec *executionContext) fieldContext_Query_users(_ context.Context, field gr
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "refreshToken":
+				return ec.fieldContext_User_refreshToken(ctx, field)
 			case "matches":
 				return ec.fieldContext_User_matches(ctx, field)
 			case "userParticipation":
@@ -4787,6 +4807,47 @@ func (ec *executionContext) fieldContext_User_updatedAt(_ context.Context, field
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_refreshToken(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_refreshToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RefreshToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_refreshToken(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6870,7 +6931,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"nickname", "email", "passwordHash", "introduction", "createdAt", "updatedAt", "matchIDs", "userParticipationIDs"}
+	fieldsInOrder := [...]string{"nickname", "email", "passwordHash", "introduction", "createdAt", "updatedAt", "refreshToken", "matchIDs", "userParticipationIDs"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6919,6 +6980,13 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.UpdatedAt = data
+		case "refreshToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshToken"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshToken = data
 		case "matchIDs":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchIDs"))
 			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
@@ -8237,7 +8305,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"nickname", "email", "passwordHash", "introduction", "updatedAt", "addMatchIDs", "removeMatchIDs", "clearMatches", "addUserParticipationIDs", "removeUserParticipationIDs", "clearUserParticipation"}
+	fieldsInOrder := [...]string{"nickname", "email", "passwordHash", "introduction", "updatedAt", "refreshToken", "clearRefreshToken", "addMatchIDs", "removeMatchIDs", "clearMatches", "addUserParticipationIDs", "removeUserParticipationIDs", "clearUserParticipation"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8279,6 +8347,20 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.UpdatedAt = data
+		case "refreshToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshToken"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshToken = data
+		case "clearRefreshToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clearRefreshToken"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClearRefreshToken = data
 		case "addMatchIDs":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("addMatchIDs"))
 			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
@@ -8334,7 +8416,7 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "nickname", "nicknameNEQ", "nicknameIn", "nicknameNotIn", "nicknameGT", "nicknameGTE", "nicknameLT", "nicknameLTE", "nicknameContains", "nicknameHasPrefix", "nicknameHasSuffix", "nicknameEqualFold", "nicknameContainsFold", "email", "emailNEQ", "emailIn", "emailNotIn", "emailGT", "emailGTE", "emailLT", "emailLTE", "emailContains", "emailHasPrefix", "emailHasSuffix", "emailEqualFold", "emailContainsFold", "passwordHash", "passwordHashNEQ", "passwordHashIn", "passwordHashNotIn", "passwordHashGT", "passwordHashGTE", "passwordHashLT", "passwordHashLTE", "passwordHashContains", "passwordHashHasPrefix", "passwordHashHasSuffix", "passwordHashEqualFold", "passwordHashContainsFold", "introduction", "introductionNEQ", "introductionIn", "introductionNotIn", "introductionGT", "introductionGTE", "introductionLT", "introductionLTE", "introductionContains", "introductionHasPrefix", "introductionHasSuffix", "introductionEqualFold", "introductionContainsFold", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "hasMatches", "hasMatchesWith", "hasUserParticipation", "hasUserParticipationWith"}
+	fieldsInOrder := [...]string{"not", "and", "or", "id", "idNEQ", "idIn", "idNotIn", "idGT", "idGTE", "idLT", "idLTE", "nickname", "nicknameNEQ", "nicknameIn", "nicknameNotIn", "nicknameGT", "nicknameGTE", "nicknameLT", "nicknameLTE", "nicknameContains", "nicknameHasPrefix", "nicknameHasSuffix", "nicknameEqualFold", "nicknameContainsFold", "email", "emailNEQ", "emailIn", "emailNotIn", "emailGT", "emailGTE", "emailLT", "emailLTE", "emailContains", "emailHasPrefix", "emailHasSuffix", "emailEqualFold", "emailContainsFold", "passwordHash", "passwordHashNEQ", "passwordHashIn", "passwordHashNotIn", "passwordHashGT", "passwordHashGTE", "passwordHashLT", "passwordHashLTE", "passwordHashContains", "passwordHashHasPrefix", "passwordHashHasSuffix", "passwordHashEqualFold", "passwordHashContainsFold", "introduction", "introductionNEQ", "introductionIn", "introductionNotIn", "introductionGT", "introductionGTE", "introductionLT", "introductionLTE", "introductionContains", "introductionHasPrefix", "introductionHasSuffix", "introductionEqualFold", "introductionContainsFold", "createdAt", "createdAtNEQ", "createdAtIn", "createdAtNotIn", "createdAtGT", "createdAtGTE", "createdAtLT", "createdAtLTE", "updatedAt", "updatedAtNEQ", "updatedAtIn", "updatedAtNotIn", "updatedAtGT", "updatedAtGTE", "updatedAtLT", "updatedAtLTE", "refreshToken", "refreshTokenNEQ", "refreshTokenIn", "refreshTokenNotIn", "refreshTokenGT", "refreshTokenGTE", "refreshTokenLT", "refreshTokenLTE", "refreshTokenContains", "refreshTokenHasPrefix", "refreshTokenHasSuffix", "refreshTokenIsNil", "refreshTokenNotNil", "refreshTokenEqualFold", "refreshTokenContainsFold", "hasMatches", "hasMatchesWith", "hasUserParticipation", "hasUserParticipationWith"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -8894,6 +8976,111 @@ func (ec *executionContext) unmarshalInputUserWhereInput(ctx context.Context, ob
 				return it, err
 			}
 			it.UpdatedAtLte = data
+		case "refreshToken":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshToken"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshToken = data
+		case "refreshTokenNEQ":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenNEQ"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenNeq = data
+		case "refreshTokenIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenIn = data
+		case "refreshTokenNotIn":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenNotIn"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenNotIn = data
+		case "refreshTokenGT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenGT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenGt = data
+		case "refreshTokenGTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenGTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenGte = data
+		case "refreshTokenLT":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenLT"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenLt = data
+		case "refreshTokenLTE":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenLTE"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenLte = data
+		case "refreshTokenContains":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenContains"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenContains = data
+		case "refreshTokenHasPrefix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenHasPrefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenHasPrefix = data
+		case "refreshTokenHasSuffix":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenHasSuffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenHasSuffix = data
+		case "refreshTokenIsNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenIsNil"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenIsNil = data
+		case "refreshTokenNotNil":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenNotNil"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenNotNil = data
+		case "refreshTokenEqualFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenEqualFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenEqualFold = data
+		case "refreshTokenContainsFold":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("refreshTokenContainsFold"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RefreshTokenContainsFold = data
 		case "hasMatches":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hasMatches"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -9642,6 +9829,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "refreshToken":
+			out.Values[i] = ec._User_refreshToken(ctx, field, obj)
 		case "matches":
 			out.Values[i] = ec._User_matches(ctx, field, obj)
 		case "userParticipation":

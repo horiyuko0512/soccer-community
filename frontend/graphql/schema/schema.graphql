@@ -49,6 +49,7 @@ input CreateUserInput {
   introduction: String!
   createdAt: Time
   updatedAt: Time
+  refreshToken: String
   matchIDs: [ID!]
   userParticipationIDs: [ID!]
 }
@@ -418,7 +419,7 @@ type Mutation {
   updateMatch(id: ID!, input: UpdateMatchInput!): Match!
   createParticipation(input: CreateParticipationInput!): Participation!
   updateParticipation(id: ID!, input: UpdateParticipationInput!): Participation!
-  createUser(input: CreateUserInput!): User!
+  createUser(input: CreateUserInput!): String!
   updateUser(input: UpdateUserInput!): User!
   login(email: String!, password: String!): String!
 }
@@ -466,6 +467,8 @@ input UpdateUserInput {
   passwordHash: String
   introduction: String
   updatedAt: Time
+  refreshToken: String
+  clearRefreshToken: Boolean
   addMatchIDs: [ID!]
   removeMatchIDs: [ID!]
   clearMatches: Boolean
@@ -481,6 +484,7 @@ type User implements Node {
   introduction: String!
   createdAt: Time!
   updatedAt: Time!
+  refreshToken: String
   matches: [Match!]
   userParticipation: [Participation!]
 }
@@ -589,6 +593,24 @@ input UserWhereInput {
   updatedAtGTE: Time
   updatedAtLT: Time
   updatedAtLTE: Time
+  """
+  refresh_token field predicates
+  """
+  refreshToken: String
+  refreshTokenNEQ: String
+  refreshTokenIn: [String!]
+  refreshTokenNotIn: [String!]
+  refreshTokenGT: String
+  refreshTokenGTE: String
+  refreshTokenLT: String
+  refreshTokenLTE: String
+  refreshTokenContains: String
+  refreshTokenHasPrefix: String
+  refreshTokenHasSuffix: String
+  refreshTokenIsNil: Boolean
+  refreshTokenNotNil: Boolean
+  refreshTokenEqualFold: String
+  refreshTokenContainsFold: String
   """
   matches edge predicates
   """

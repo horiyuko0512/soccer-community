@@ -981,6 +981,23 @@ type UserWhereInput struct {
 	UpdatedAtLT    *time.Time  `json:"updatedAtLT,omitempty"`
 	UpdatedAtLTE   *time.Time  `json:"updatedAtLTE,omitempty"`
 
+	// "refresh_token" field predicates.
+	RefreshToken             *string  `json:"refreshToken,omitempty"`
+	RefreshTokenNEQ          *string  `json:"refreshTokenNEQ,omitempty"`
+	RefreshTokenIn           []string `json:"refreshTokenIn,omitempty"`
+	RefreshTokenNotIn        []string `json:"refreshTokenNotIn,omitempty"`
+	RefreshTokenGT           *string  `json:"refreshTokenGT,omitempty"`
+	RefreshTokenGTE          *string  `json:"refreshTokenGTE,omitempty"`
+	RefreshTokenLT           *string  `json:"refreshTokenLT,omitempty"`
+	RefreshTokenLTE          *string  `json:"refreshTokenLTE,omitempty"`
+	RefreshTokenContains     *string  `json:"refreshTokenContains,omitempty"`
+	RefreshTokenHasPrefix    *string  `json:"refreshTokenHasPrefix,omitempty"`
+	RefreshTokenHasSuffix    *string  `json:"refreshTokenHasSuffix,omitempty"`
+	RefreshTokenIsNil        bool     `json:"refreshTokenIsNil,omitempty"`
+	RefreshTokenNotNil       bool     `json:"refreshTokenNotNil,omitempty"`
+	RefreshTokenEqualFold    *string  `json:"refreshTokenEqualFold,omitempty"`
+	RefreshTokenContainsFold *string  `json:"refreshTokenContainsFold,omitempty"`
+
 	// "matches" edge predicates.
 	HasMatches     *bool              `json:"hasMatches,omitempty"`
 	HasMatchesWith []*MatchWhereInput `json:"hasMatchesWith,omitempty"`
@@ -1288,6 +1305,51 @@ func (i *UserWhereInput) P() (predicate.User, error) {
 	}
 	if i.UpdatedAtLTE != nil {
 		predicates = append(predicates, user.UpdatedAtLTE(*i.UpdatedAtLTE))
+	}
+	if i.RefreshToken != nil {
+		predicates = append(predicates, user.RefreshTokenEQ(*i.RefreshToken))
+	}
+	if i.RefreshTokenNEQ != nil {
+		predicates = append(predicates, user.RefreshTokenNEQ(*i.RefreshTokenNEQ))
+	}
+	if len(i.RefreshTokenIn) > 0 {
+		predicates = append(predicates, user.RefreshTokenIn(i.RefreshTokenIn...))
+	}
+	if len(i.RefreshTokenNotIn) > 0 {
+		predicates = append(predicates, user.RefreshTokenNotIn(i.RefreshTokenNotIn...))
+	}
+	if i.RefreshTokenGT != nil {
+		predicates = append(predicates, user.RefreshTokenGT(*i.RefreshTokenGT))
+	}
+	if i.RefreshTokenGTE != nil {
+		predicates = append(predicates, user.RefreshTokenGTE(*i.RefreshTokenGTE))
+	}
+	if i.RefreshTokenLT != nil {
+		predicates = append(predicates, user.RefreshTokenLT(*i.RefreshTokenLT))
+	}
+	if i.RefreshTokenLTE != nil {
+		predicates = append(predicates, user.RefreshTokenLTE(*i.RefreshTokenLTE))
+	}
+	if i.RefreshTokenContains != nil {
+		predicates = append(predicates, user.RefreshTokenContains(*i.RefreshTokenContains))
+	}
+	if i.RefreshTokenHasPrefix != nil {
+		predicates = append(predicates, user.RefreshTokenHasPrefix(*i.RefreshTokenHasPrefix))
+	}
+	if i.RefreshTokenHasSuffix != nil {
+		predicates = append(predicates, user.RefreshTokenHasSuffix(*i.RefreshTokenHasSuffix))
+	}
+	if i.RefreshTokenIsNil {
+		predicates = append(predicates, user.RefreshTokenIsNil())
+	}
+	if i.RefreshTokenNotNil {
+		predicates = append(predicates, user.RefreshTokenNotNil())
+	}
+	if i.RefreshTokenEqualFold != nil {
+		predicates = append(predicates, user.RefreshTokenEqualFold(*i.RefreshTokenEqualFold))
+	}
+	if i.RefreshTokenContainsFold != nil {
+		predicates = append(predicates, user.RefreshTokenContainsFold(*i.RefreshTokenContainsFold))
 	}
 
 	if i.HasMatches != nil {

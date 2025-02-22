@@ -8,10 +8,10 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader } from "lucide-react"
 import { useCreateUserMutation } from "@/graphql/generated/graphql"
-import { useRouter } from "next/navigation"
 import { registerSchema, RegisterFormValues } from "./schema"
 import Link from "next/link"
 import { toast } from "sonner"
+import { updateToken } from "../login/actions"
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState<RegisterFormValues>({
@@ -23,13 +23,19 @@ const RegisterForm = () => {
   })
   const [errors, setErrors] = useState<Partial<RegisterFormValues>>({})
   const [registrationSuccessful, setRegistrationSuccessful] = useState(false)
-  const router = useRouter()
 
   const [createUserMutation, { loading, error }] = useCreateUserMutation({
-    onCompleted: () => {
-      toast.success("登録に成功しました")
-      setRegistrationSuccessful(true)
-      router.push("/matches")
+    onCompleted: async (data) => {
+      if (data?.createUser) {
+        setRegistrationSuccessful(true)
+        const result = await updateToken(data.createUser)
+        if (result.success) {
+          toast.success("登録に成功しました")
+          window.location.href = "/matches"
+        } else {
+          toast.error("登録に失敗しました")
+        }
+      }
     },
   })
 
@@ -159,7 +165,9 @@ const RegisterForm = () => {
             )}
           </Button>
           {error && (
-            <p className="text-red-500 text-sm flex justify-center">エラーが発生して、登録に失敗しました</p>
+            <p className="text-red-500 text-sm flex justify-center">
+              エラーが発生して、登録に失敗しました
+            </p>
           )}
 
           <div className="text-center text-sm text-sky-600">

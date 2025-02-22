@@ -355,6 +355,11 @@ func (u *UserQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 				selectedFields = append(selectedFields, user.FieldUpdatedAt)
 				fieldSeen[user.FieldUpdatedAt] = struct{}{}
 			}
+		case "refreshToken":
+			if _, ok := fieldSeen[user.FieldRefreshToken]; !ok {
+				selectedFields = append(selectedFields, user.FieldRefreshToken)
+				fieldSeen[user.FieldRefreshToken] = struct{}{}
+			}
 		case "id":
 		case "__typename":
 		default:

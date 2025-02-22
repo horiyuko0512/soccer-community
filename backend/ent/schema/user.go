@@ -39,6 +39,9 @@ func (User) Fields() []ent.Field {
 		field.Time("updated_at").
 			Default(time.Now).
 			UpdateDefault(time.Now),
+		field.String("refresh_token").
+			Optional().
+			Unique(),
 	}
 }
 
@@ -52,7 +55,7 @@ func (User) Edges() []ent.Edge {
 
 func (User) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("id", "email").
+		index.Fields("id", "email", "refresh_token").
       Unique(),
 	}
 }

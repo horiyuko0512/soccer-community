@@ -1,11 +1,6 @@
 # ユーザー作成用
 mutation CreateUser($input: CreateUserInput!) {
-  createUser(input: $input) {
-    id
-    nickname
-    email
-    introduction
-  }
+  createUser(input: $input)
 }
 
 # ユーザー変更用

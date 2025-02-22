@@ -20,13 +20,13 @@ const LoginForm = () => {
   const [loginMutation, { loading, error }] = useLoginMutation({
     onCompleted: async (data) => {
       if (data?.login) {
-        setLoginSuccessful(true);
+        setLoginSuccessful(true)
         const result = await updateToken(data.login)
         if (result.success) {
           toast.success("ログインに成功しました")
-          window.location.href = "/matches";
+          window.location.href = "/matches"
         } else {
-          toast.error("ログインに失敗しました");
+          toast.error("ログインに失敗しました")
         }
       }
     },
@@ -57,8 +57,12 @@ const LoginForm = () => {
 
     await loginMutation({
       variables: { email: formData.email, password: formData.password },
+      context: {
+        fetchOptions: {
+          credentials: "include",
+        },
+      },
     })
-
   }
 
   useEffect(() => {
@@ -113,7 +117,9 @@ const LoginForm = () => {
             )}
           </Button>
           {error && (
-            <p className="text-red-500 text-sm flex justify-center">メールアドレスまたはパスワードが間違っています</p>
+            <p className="text-red-500 text-sm flex justify-center">
+              メールアドレスまたはパスワードが間違っています
+            </p>
           )}
         </form>
         <div className="space-y-4 text-center mt-4">

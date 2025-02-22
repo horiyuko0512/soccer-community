@@ -70,23 +70,26 @@ const Management = ({ id }: MatchProps) => {
     variables: { matchID: id },
     skip: !matchData?.match,
   })
-  const [updateMatchMutation, { error: matchUpdateError, loading: matchUpdateLoading }] = useUpdateMatchMutation({
-    onCompleted: (data) => {
-      if(data?.updateMatch){
-        setIsEditing(false)
-        toast.success("試合情報を更新しました")
-      }
-    }
-  })
-  const [updateParticipationMutation, { error: participationUpdateError, loading: participationUpdateLoading }] =
-    useUpdateParticipationMutation({
+  const [updateMatchMutation, { error: matchUpdateError, loading: matchUpdateLoading }] =
+    useUpdateMatchMutation({
       onCompleted: (data) => {
-        if (data?.updateParticipation) {
-          setShowApproveDialog(false)
-          setShowRejectDialog(false)
-          toast.success("承認却下に成功しました")
+        if (data?.updateMatch) {
+          setIsEditing(false)
+          toast.success("試合情報を更新しました")
         }
+      },
+    })
+  const [
+    updateParticipationMutation,
+    { error: participationUpdateError, loading: participationUpdateLoading },
+  ] = useUpdateParticipationMutation({
+    onCompleted: (data) => {
+      if (data?.updateParticipation) {
+        setShowApproveDialog(false)
+        setShowRejectDialog(false)
+        toast.success("承認却下に成功しました")
       }
+    },
   })
 
   const [formData, setFormData] = useState<UpdateMatchFormValues>({
@@ -189,7 +192,7 @@ const Management = ({ id }: MatchProps) => {
       variables: {
         id: selectedParticipationId,
         input: {
-          status: ParticipationStatus.Rejected
+          status: ParticipationStatus.Rejected,
         },
       },
     })
@@ -343,9 +346,7 @@ const Management = ({ id }: MatchProps) => {
                     type="submit"
                     className="flex-1 bg-sky-500 hover:bg-sky-600"
                   >
-                    {matchUpdateLoading ? (
-                      <Loader className="animate-spin" />
-                    ) : "保存"}
+                    {matchUpdateLoading ? <Loader className="animate-spin" /> : "保存"}
                   </Button>
                   <Button
                     type="button"
@@ -356,7 +357,9 @@ const Management = ({ id }: MatchProps) => {
                     キャンセル
                   </Button>
                   {matchUpdateError && (
-                    <p className="text-red-500 text-sm flex justify-center">エラーが発生して、編集に失敗しました</p>
+                    <p className="text-red-500 text-sm flex justify-center">
+                      エラーが発生して、編集に失敗しました
+                    </p>
                   )}
                 </div>
               </form>
@@ -424,7 +427,9 @@ const Management = ({ id }: MatchProps) => {
                     </Button>
                   </div>
                   {participationUpdateError && (
-                    <p className="text-red-500 text-sm flex justify-center">エラーが発生して、承認却下に失敗しました</p>
+                    <p className="text-red-500 text-sm flex justify-center">
+                      エラーが発生して、承認却下に失敗しました
+                    </p>
                   )}
                 </div>
               </CardContent>
@@ -449,9 +454,7 @@ const Management = ({ id }: MatchProps) => {
               onClick={confirmApprove}
               className="bg-sky-500 hover:bg-sky-600"
             >
-              {participationUpdateLoading ? (
-                <Loader className="animate-spin" />
-              ) : "承認する"}
+              {participationUpdateLoading ? <Loader className="animate-spin" /> : "承認する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -473,9 +476,7 @@ const Management = ({ id }: MatchProps) => {
               onClick={confirmReject}
               className="bg-red-500 hover:bg-red-600"
             >
-              {participationUpdateLoading ? (
-                <Loader className="animate-spin" />
-              ) : "却下する"}
+              {participationUpdateLoading ? <Loader className="animate-spin" /> : "却下する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -30,18 +31,37 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"errors": []map[string]string{
+					{"message": "Unauthorized"},
+				},
+			})
 			return
 		}
+
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"errors": []map[string]string{
+					{"message": "Unauthorized"},
+				},
+			})
 			return
 		}
 
 		userId, ok := claims["userId"].(string)
 		if !ok {
-			http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]interface{}{
+				"errors": []map[string]string{
+					{"message": "Unauthorized"},
+				},
+			})
 			return
 		}
 		ctx := context.WithValue(r.Context(), UserIdKey, userId)
