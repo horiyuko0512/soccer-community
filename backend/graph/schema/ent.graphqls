@@ -410,7 +410,7 @@ type Mutation {
   updateMatch(id: ID!, input: UpdateMatchInput!): Match!
   createParticipation(input: CreateParticipationInput!): Participation!
   updateParticipation(id: ID!, input: UpdateParticipationInput!): Participation!
-  createUser(input: CreateUserInput!): User!
+  createUser(input: CreateUserInput!): String!
   updateUser(input: UpdateUserInput!): User!
   login(email: String!, password: String!): String!
 }

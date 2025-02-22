@@ -49,6 +49,7 @@ type CreateUserInput struct {
 	Introduction         string     `json:"introduction"`
 	CreatedAt            *time.Time `json:"createdAt,omitempty"`
 	UpdatedAt            *time.Time `json:"updatedAt,omitempty"`
+	RefreshToken         *string    `json:"refreshToken,omitempty"`
 	MatchIDs             []string   `json:"matchIDs,omitempty"`
 	UserParticipationIDs []string   `json:"userParticipationIDs,omitempty"`
 }
@@ -329,6 +330,8 @@ type UpdateUserInput struct {
 	PasswordHash               *string    `json:"passwordHash,omitempty"`
 	Introduction               *string    `json:"introduction,omitempty"`
 	UpdatedAt                  *time.Time `json:"updatedAt,omitempty"`
+	RefreshToken               *string    `json:"refreshToken,omitempty"`
+	ClearRefreshToken          *bool      `json:"clearRefreshToken,omitempty"`
 	AddMatchIDs                []string   `json:"addMatchIDs,omitempty"`
 	RemoveMatchIDs             []string   `json:"removeMatchIDs,omitempty"`
 	ClearMatches               *bool      `json:"clearMatches,omitempty"`
@@ -345,6 +348,7 @@ type User struct {
 	Introduction      string           `json:"introduction"`
 	CreatedAt         time.Time        `json:"createdAt"`
 	UpdatedAt         time.Time        `json:"updatedAt"`
+	RefreshToken      *string          `json:"refreshToken,omitempty"`
 	Matches           []*Match         `json:"matches,omitempty"`
 	UserParticipation []*Participation `json:"userParticipation,omitempty"`
 }
@@ -440,6 +444,22 @@ type UserWhereInput struct {
 	UpdatedAtGte   *time.Time   `json:"updatedAtGTE,omitempty"`
 	UpdatedAtLt    *time.Time   `json:"updatedAtLT,omitempty"`
 	UpdatedAtLte   *time.Time   `json:"updatedAtLTE,omitempty"`
+	// refresh_token field predicates
+	RefreshToken             *string  `json:"refreshToken,omitempty"`
+	RefreshTokenNeq          *string  `json:"refreshTokenNEQ,omitempty"`
+	RefreshTokenIn           []string `json:"refreshTokenIn,omitempty"`
+	RefreshTokenNotIn        []string `json:"refreshTokenNotIn,omitempty"`
+	RefreshTokenGt           *string  `json:"refreshTokenGT,omitempty"`
+	RefreshTokenGte          *string  `json:"refreshTokenGTE,omitempty"`
+	RefreshTokenLt           *string  `json:"refreshTokenLT,omitempty"`
+	RefreshTokenLte          *string  `json:"refreshTokenLTE,omitempty"`
+	RefreshTokenContains     *string  `json:"refreshTokenContains,omitempty"`
+	RefreshTokenHasPrefix    *string  `json:"refreshTokenHasPrefix,omitempty"`
+	RefreshTokenHasSuffix    *string  `json:"refreshTokenHasSuffix,omitempty"`
+	RefreshTokenIsNil        *bool    `json:"refreshTokenIsNil,omitempty"`
+	RefreshTokenNotNil       *bool    `json:"refreshTokenNotNil,omitempty"`
+	RefreshTokenEqualFold    *string  `json:"refreshTokenEqualFold,omitempty"`
+	RefreshTokenContainsFold *string  `json:"refreshTokenContainsFold,omitempty"`
 	// matches edge predicates
 	HasMatches     *bool              `json:"hasMatches,omitempty"`
 	HasMatchesWith []*MatchWhereInput `json:"hasMatchesWith,omitempty"`

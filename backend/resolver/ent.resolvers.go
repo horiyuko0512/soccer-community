@@ -167,10 +167,10 @@ func (r *mutationResolver) UpdateParticipation(ctx context.Context, id string, i
 }
 
 // CreateUser is the resolver for the CreateUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (*model.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUserInput) (string, error) {
 	hashedPassword, err := auth.PasswordEncrypt(input.PasswordHash)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encrypt password: %w", err)
+		return "パスワードの暗号化に失敗しました", fmt.Errorf("failed to encrypt password: %w", err)
 	}
 
 	user, err := r.client.User.
@@ -181,23 +181,33 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.CreateUse
 		SetIntroduction(input.Introduction).
 		Save(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+		return "ユーザー作成に失敗しました", fmt.Errorf("failed to create user: %w", err)
 	}
 
 	//JWTの生成
 	token, err := auth.GenerateJWT(user.ID.String())
 	if err != nil {
-		return nil, fmt.Errorf("failed to generate token: %w", err)
+		return "トークンの生成に失敗しました", fmt.Errorf("failed to generate token: %w", err)
 	}
-	//Cookieの設定
-	auth.SetCookie(ctx, token)
 
-	return &model.User{
-		ID:           user.ID.String(),
-		NickName:     user.NickName,
-		Email:        user.Email,
-		Introduction: user.Introduction,
-	}, nil
+	//リフレッシュトークンの生成
+	refresh_token, err := auth.GenerateRefreshToken()
+	if err != nil {
+		return "リフレッシュトークンの生成に失敗しました", fmt.Errorf("failed to generate refresh token: %w", err)
+	}
+
+	//リフレッシュトークンの保存
+	_, err = r.client.User.UpdateOneID(user.ID).
+		SetRefreshToken(refresh_token).
+		Save(ctx)
+	if err != nil {
+		return "リフレッシュトークンの保存に失敗しました", fmt.Errorf("failed to save refresh token: %w", err)
+	}
+
+	//Cookieの設定
+	auth.SetCookie(ctx, refresh_token)
+
+	return token, nil
 }
 
 // UpdateUser is the resolver for the UpdateUser field.
