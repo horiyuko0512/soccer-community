@@ -71,3 +71,8 @@ mutation UpdateParticipation($id: ID!, $input: UpdateParticipationInput!) {
 mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password)
 }
+
+# ログアウト用
+mutation Logout {
+  logout
+}

@@ -422,6 +422,7 @@ type Mutation {
   createUser(input: CreateUserInput!): String!
   updateUser(input: UpdateUserInput!): User!
   login(email: String!, password: String!): String!
+  logout: Boolean!
 }
 """
 The builtin Time type

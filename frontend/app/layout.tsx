@@ -27,7 +27,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const cookieStore = await cookies()
-  const cookieName = process.env.COOKIE_NAME || ""
+  const cookieName = process.env.ACCESS_COOKIE_NAME || ""
   const token = cookieStore.get(cookieName)?.value || null
 
   return (

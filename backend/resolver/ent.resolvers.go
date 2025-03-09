@@ -280,6 +280,21 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 	return token, nil
 }
 
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+	userId, ok := ctx.Value(middleware.UserIdKey).(string)
+	if !ok {
+		return false, fmt.Errorf("Unauthorized")
+	}
+	_, err := r.client.User.UpdateOneID(uuid.MustParse(userId)).
+		SetRefreshToken("").
+		Save(ctx)
+	if err != nil {
+		return false, fmt.Errorf("failed to update refresh token: %w", err)
+	}
+	return true, nil
+}
+
 // Node is the resolver for the node field.
 func (r *queryResolver) Node(ctx context.Context, id string) (ent.Noder, error) {
 	panic(fmt.Errorf("not implemented: Node - node"))
