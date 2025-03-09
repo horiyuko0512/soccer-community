@@ -91,6 +91,9 @@ func main() {
       return
     }
 
+		ctx := context.WithValue(r.Context(), auth.ResponseWriterKey, w)
+    r = r.WithContext(ctx)
+
     newAccessToken, err := handleRefresh(r.Context(), client, r)
     if err != nil {
         log.Printf("Refresh failed: %v", err)
