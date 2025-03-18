@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation"
 import { useMatchesQuery } from "@/graphql/generated/graphql"
 import { formatEventDuration } from "@/lib/utils"
 import { ChevronDown, ChevronUp } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const levels = [
   { id: "beginner", label: "初級" },
@@ -23,13 +24,19 @@ const MatchesList = () => {
   const [endAt, setEndAt] = useState("")
   const [location, setLocation] = useState("")
   const [level, setLevel] = useState("")
-  const [participants, setParticipants] = useState("")
-  const [fee, setFee] = useState("")
+  const [participantsMin, setParticipantsMin] = useState("")
+  const [participantsMax, setParticipantsMax] = useState("")
+  const [feeMin, setFeeMin] = useState("")
+  const [feeMax, setFeeMax] = useState("")
+  const [isApplied, setIsApplied] = useState(false)
 
   const { data, loading, error } = useMatchesQuery()
 
   const handleSearch = () => {
-    console.log({ date, location, level, participants, fee })
+    console.log({ date, location, level })
+    if (isApplied) {
+      console.log("応募中の試合のみ表示")
+    }
   }
 
   if (loading) {
@@ -152,25 +159,55 @@ const MatchesList = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">参加者数</label>
-                  <Input
-                    type="number"
-                    value={participants}
-                    onChange={(e) => setParticipants(e.target.value)}
-                    placeholder="参加者数を入力"
-                    className="w-full"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">参加者数</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={participantsMin}
+                      onChange={(e) => setParticipantsMin(e.target.value)}
+                      placeholder="下限（例）3"
+                      className="w-full"
+                    />
+                    <span className="text-gray-500">～</span>
+                    <Input
+                      value={participantsMax}
+                      onChange={(e) => setParticipantsMax(e.target.value)}
+                      placeholder="上限（例）6"
+                      className="w-full"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">料金</label>
-                  <Input
-                    type="number"
-                    value={fee}
-                    onChange={(e) => setFee(e.target.value)}
-                    placeholder="料金を入力"
-                    className="w-full"
+                  <label className="block text-sm font-medium text-gray-700 mb-2">料金 (円)</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={feeMin}
+                      onChange={(e) => setFeeMin(e.target.value)}
+                      placeholder="下限（例）500"
+                      className="w-full"
+                    />
+                    <span className="text-gray-500">～</span>
+                    <Input
+                      value={feeMax}
+                      onChange={(e) => setFeeMax(e.target.value)}
+                      placeholder="上限（例）1000"
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center">
+                  <Checkbox
+                    id="isApplied"
+                    checked={isApplied}
+                    onCheckedChange={(checked) => setIsApplied(checked === true)}
                   />
+                  <label
+                    htmlFor="isApplied"
+                    className="ml-2 text-sm font-medium text-gray-700"
+                  >
+                    応募中の試合のみ表示
+                  </label>
                 </div>
               </div>
             )}
