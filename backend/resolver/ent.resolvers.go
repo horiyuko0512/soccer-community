@@ -394,6 +394,92 @@ func (r *queryResolver) MatchesByCreatorID(ctx context.Context) ([]*model.Match,
 	return result, nil
 }
 
+// SearchMatches is the resolver for the searchMatches field.
+func (r *queryResolver) SearchMatches(ctx context.Context, input model.SearchMatchInput) ([]*model.Match, error) {
+	_, ok := ctx.Value(middleware.UserIdKey).(string)
+	if !ok {
+		return nil, fmt.Errorf("Unauthorized")
+	}
+	query := r.client.Match.Query()
+	if input.Date != nil {
+		startDate := input.Date.Truncate(24 * time.Hour)
+		endDate := startDate.Add(24 * time.Hour)
+
+		query = query.Where(
+			match.And(
+				match.StartAtGTE(startDate),
+				match.StartAtLT(endDate),
+			),
+		)
+	}
+	if input.StartTime != nil {
+		query = query.Where(
+			match.StartAtGTE(*input.StartTime),
+		)
+	}
+	if input.EndTime != nil {
+		query = query.Where(
+			match.EndAtLTE(*input.EndTime),
+		)
+	}
+	if input.Location != nil && *input.Location != "" {
+		query = query.Where(
+			match.LocationContains(*input.Location),
+		)
+	}
+	if input.Level != nil {
+		query = query.Where(
+			match.LevelEQ(*input.Level),
+		)
+	}
+	if input.ParticipantsMin != nil && *input.ParticipantsMin > 0 {
+		query = query.Where(
+			match.ParticipantsGTE(int(*input.ParticipantsMin)),
+		)
+	}
+	if input.ParticipantsMax != nil && *input.ParticipantsMax > 0 {
+		query = query.Where(
+			match.ParticipantsLTE(int(*input.ParticipantsMax)),
+		)
+	}
+	if input.FeeMin != nil && *input.FeeMin >= 0 {
+		query = query.Where(
+			match.FeeGTE(int(*input.FeeMin)),
+		)
+	}
+	if input.FeeMax != nil && *input.FeeMax >= 0 {
+		query = query.Where(
+			match.FeeLTE(int(*input.FeeMax)),
+		)
+	}
+	if input.IsApplied != nil {
+		query = query.Where(
+			match.IsApplied(*input.IsApplied),
+		)
+	}
+	matches, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search matches: %w", err)
+	}
+	result := make([]*model.Match, len(matches))
+	for i, match := range matches {
+		result[i] = &model.Match{
+			ID:           match.ID.String(),
+			Title:        match.Title,
+			StartAt:      match.StartAt,
+			EndAt:        match.EndAt,
+			Location:     match.Location,
+			Level:        match.Level,
+			Participants: int32(match.Participants),
+			Fee:          int32(match.Fee),
+			Notes:        match.Notes,
+			CreatorID:    match.CreatorID.String(),
+			IsApplied:    match.IsApplied,
+		}
+	}
+	return result, nil
+}
+
 // Participation is the resolver for the participation field.
 func (r *queryResolver) Participation(ctx context.Context, id string) (*model.Participation, error) {
 	_, ok := ctx.Value(middleware.UserIdKey).(string)
