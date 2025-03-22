@@ -61,6 +61,23 @@ query MatchesByCreatorId {
   }
 }
 
+# 試合検索用
+query searchMatches($input: SearchMatchInput!) {
+  searchMatches(input: $input) {
+    id
+    title
+    startAt
+    endAt
+    location
+    level
+    participants
+    fee
+    notes
+    creatorID
+    isApplied
+  }
+}
+
 # 特定の関係閲覧用
 query Participation($id: ID!) {
   participation(id: $id) {
