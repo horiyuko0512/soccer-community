@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/horiyuko0512/soccer-community/ent"
 	"github.com/horiyuko0512/soccer-community/ent/match"
@@ -401,26 +402,41 @@ func (r *queryResolver) SearchMatches(ctx context.Context, input model.SearchMat
 		return nil, fmt.Errorf("Unauthorized")
 	}
 	query := r.client.Match.Query()
-	if input.Date != nil {
-		startDate := input.Date.Truncate(24 * time.Hour)
-		endDate := startDate.Add(24 * time.Hour)
+  if input.Date != nil {
+    jst, err := time.LoadLocation("Asia/Tokyo")
+    if err != nil {
+      return nil, fmt.Errorf("failed to load JST location: %w", err)
+    }
+    jstTime := input.Date.In(jst)
+		startJST := time.Date(jstTime.Year(), jstTime.Month(), jstTime.Day(), 0, 0, 0, 0, jst)
+    endJST := startJST.Add(24 * time.Hour - time.Second)
+    startUTC := startJST.UTC()
+    endUTC := endJST.UTC()
+    query = query.Where(
+		  match.And(
+        match.StartAtGTE(startUTC),
+        match.StartAtLTE(endUTC),
+      ),
+    )
+  }
+	if input.StartTime != nil && input.EndTime != nil {
+		startTimeMinutes := input.StartTime.Hour()*60 + input.StartTime.Minute()
+		endTimeMinutes := input.EndTime.Hour()*60 + input.EndTime.Minute()
 
-		query = query.Where(
-			match.And(
-				match.StartAtGTE(startDate),
-				match.StartAtLT(endDate),
-			),
-		)
-	}
-	if input.StartTime != nil {
-		query = query.Where(
-			match.StartAtGTE(*input.StartTime),
-		)
-	}
-	if input.EndTime != nil {
-		query = query.Where(
-			match.EndAtLTE(*input.EndTime),
-		)
+		query = query.Where(func(s *sql.Selector) {
+			startTimeExpr := sql.ExprP(
+				fmt.Sprintf("(EXTRACT(HOUR FROM %s) * 60 + EXTRACT(MINUTE FROM %s)) >= ?",
+				match.FieldStartAt, match.FieldStartAt),
+				startTimeMinutes,
+			)
+
+			endTimeExpr := sql.ExprP(
+				fmt.Sprintf("(EXTRACT(HOUR FROM %s) * 60 + EXTRACT(MINUTE FROM %s)) <= ?",
+				match.FieldEndAt, match.FieldEndAt),
+				endTimeMinutes,
+			)
+			s.Where(sql.And(startTimeExpr, endTimeExpr))
+		})
 	}
 	if input.Location != nil && *input.Location != "" {
 		query = query.Where(
@@ -452,7 +468,7 @@ func (r *queryResolver) SearchMatches(ctx context.Context, input model.SearchMat
 			match.FeeLTE(int(*input.FeeMax)),
 		)
 	}
-	if input.IsApplied != nil {
+	if input.IsApplied != nil && *input.IsApplied {
 		query = query.Where(
 			match.IsApplied(*input.IsApplied),
 		)
