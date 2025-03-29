@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { MatchLevel, useMatchesQuery, useSearchMatchesLazyQuery } from "@/graphql/generated/graphql"
 import { formatDateTimeToISO, formatEventDuration } from "@/lib/utils"
 import { ChevronDown, ChevronUp } from "lucide-react"
@@ -23,6 +23,7 @@ type FormErrors = {
 
 const MatchesList = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false)
 
   const [formData, setFormData] = useState<SearchMatchFormValues>({
@@ -43,6 +44,74 @@ const MatchesList = () => {
   const [searchMatches, { data: searchData, loading: searchLoading, error: searchError }] =
     useSearchMatchesLazyQuery()
   const [searchResults, setSearchResults] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.size > 0) {
+      const levelParam = searchParams.get("level") || ""
+      let levelValue: "" | MatchLevel = ""
+      if (
+        levelParam === MatchLevel.Beginner ||
+        levelParam === MatchLevel.Intermediate ||
+        levelParam === MatchLevel.Advanced
+      ) {
+        levelValue = levelParam
+      }
+      const newFormData = {
+        date: searchParams.get("date") || "",
+        startTime: searchParams.get("startTime") || "",
+        endTime: searchParams.get("endTime") || "",
+        location: searchParams.get("location") || "",
+        level: levelValue,
+        participantsMin: searchParams.get("participantsMin") || "",
+        participantsMax: searchParams.get("participantsMax") || "",
+        feeMin: searchParams.get("feeMin") || "",
+        feeMax: searchParams.get("feeMax") || "",
+        isApplied: searchParams.get("isApplied") === "true",
+      }
+      setFormData(newFormData)
+      if (
+        newFormData.location ||
+        newFormData.level ||
+        newFormData.participantsMin ||
+        newFormData.participantsMax ||
+        newFormData.feeMin ||
+        newFormData.feeMax ||
+        newFormData.isApplied
+      ) {
+        setShowAdvancedSearch(true)
+      }
+      searchMatches({
+        variables: {
+          input: {
+            date:
+              newFormData.date !== "" ? formatDateTimeToISO(newFormData.date, "00:00") : undefined,
+            startTime:
+              newFormData.startTime !== ""
+                ? formatDateTimeToISO("2000-01-01", newFormData.startTime)
+                : undefined,
+            endTime:
+              newFormData.endTime !== ""
+                ? formatDateTimeToISO("2000-01-01", newFormData.endTime)
+                : undefined,
+            location: newFormData.location !== "" ? newFormData.location : undefined,
+            level: newFormData.level !== "" ? newFormData.level : undefined,
+            participantsMax:
+              newFormData.participantsMax !== ""
+                ? parseInt(newFormData.participantsMax, 10)
+                : undefined,
+            participantsMin:
+              newFormData.participantsMin !== ""
+                ? parseInt(newFormData.participantsMin, 10)
+                : undefined,
+            feeMax: newFormData.feeMax !== "" ? parseInt(newFormData.feeMax, 10) : undefined,
+            feeMin: newFormData.feeMin !== "" ? parseInt(newFormData.feeMin, 10) : undefined,
+            isApplied: newFormData.isApplied,
+          },
+        },
+      })
+      setSearchResults(true)
+    }
+  }, [searchMatches, searchParams])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -67,10 +136,24 @@ const MatchesList = () => {
     setErrors({})
     setSearchResults(true)
 
+    const params = new URLSearchParams()
+    if (formData.date) params.set("date", formData.date)
+    if (formData.startTime) params.set("startTime", formData.startTime)
+    if (formData.endTime) params.set("endTime", formData.endTime)
+    if (formData.location) params.set("location", formData.location)
+    if (formData.level) params.set("level", formData.level)
+    if (formData.participantsMin) params.set("participantsMin", formData.participantsMin)
+    if (formData.participantsMax) params.set("participantsMax", formData.participantsMax)
+    if (formData.feeMin) params.set("feeMin", formData.feeMin)
+    if (formData.feeMax) params.set("feeMax", formData.feeMax)
+    if (formData.isApplied) params.set("isApplied", "true")
+
+    const url = `${window.location.pathname}?${params.toString()}`
+    router.push(url, { scroll: false })
+
     await searchMatches({
       variables: {
         input: {
-          // ...searchInput,
           date: formData.date !== "" ? formatDateTimeToISO(formData.date, "00:00") : undefined,
           startTime:
             formData.startTime !== ""
@@ -109,6 +192,8 @@ const MatchesList = () => {
     })
     setErrors({})
     setSearchResults(false)
+
+    router.push(window.location.pathname, { scroll: false })
   }
 
   if (initialLoading || searchLoading) {
