@@ -220,14 +220,6 @@ const MatchesList = () => {
     </div>
   }
 
-  if (searchResults && searchData?.searchMatches?.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <p className="text-lg font-medium text-gray-900">検索条件に合う試合がありません。</p>
-      </div>
-    )
-  }
-
   const matches = searchResults ? searchData?.searchMatches : initialData?.matches
 
   return (
@@ -421,34 +413,40 @@ const MatchesList = () => {
       </Card>
 
       <div className="space-y-4">
-        {matches?.map((match) => (
-          <Card
-            key={match.id}
-            className="hover:shadow-lg transition-shadow"
-          >
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-bold text-sky-900">{match.title}</h3>
-                <span className="bg-sky-100 text-sky-800 px-2 py-1 rounded-full text-sm">
-                  {match.isApplied ? "応募中" : "停止中"}
-                </span>
-              </div>
-              <div className="space-y-2 text-sm text-sky-700">
-                <p>{formatEventDuration(match.startAt, match.endAt)}</p>
-                <p>{match.location}</p>
-                <p>レベル: {levels.find((item) => item.id === match.level)?.label}</p>
-              </div>
-              <div className="mt-4">
-                <Button
-                  className="w-full bg-sky-500 hover:bg-sky-600"
-                  onClick={() => router.push(`/matches/${match.id}`)}
-                >
-                  詳細を見る
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {searchResults && matches?.length === 0 ? (
+          <div className="flex justify-center items-center h-64">
+            <p className="text-lg font-medium text-gray-900">検索条件に合う試合がありません。</p>
+          </div>
+        ) : (
+          matches?.map((match) => (
+            <Card
+              key={match.id}
+              className="hover:shadow-lg transition-shadow"
+            >
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <h3 className="text-lg font-bold text-sky-900">{match.title}</h3>
+                  <span className="bg-sky-100 text-sky-800 px-2 py-1 rounded-full text-sm">
+                    {match.isApplied ? "応募中" : "停止中"}
+                  </span>
+                </div>
+                <div className="space-y-2 text-sm text-sky-700">
+                  <p>{formatEventDuration(match.startAt, match.endAt)}</p>
+                  <p>{match.location}</p>
+                  <p>レベル: {levels.find((item) => item.id === match.level)?.label}</p>
+                </div>
+                <div className="mt-4">
+                  <Button
+                    className="w-full bg-sky-500 hover:bg-sky-600"
+                    onClick={() => router.push(`/matches/${match.id}`)}
+                  >
+                    詳細を見る
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </>
   )
