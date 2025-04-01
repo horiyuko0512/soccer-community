@@ -420,23 +420,17 @@ func (r *queryResolver) SearchMatches(ctx context.Context, input model.SearchMat
     )
   }
 	if input.StartTime != nil && input.EndTime != nil {
-		startTimeMinutes := input.StartTime.Hour()*60 + input.StartTime.Minute()
-		endTimeMinutes := input.EndTime.Hour()*60 + input.EndTime.Minute()
-
-		query = query.Where(func(s *sql.Selector) {
-			startTimeExpr := sql.ExprP(
-				fmt.Sprintf("(EXTRACT(HOUR FROM %s) * 60 + EXTRACT(MINUTE FROM %s)) >= ?",
-				match.FieldStartAt, match.FieldStartAt),
-				startTimeMinutes,
+    startTimeMinutes := input.StartTime.UTC().Hour()*60 + input.StartTime.UTC().Minute()
+    endTimeMinutes := input.EndTime.UTC().Hour()*60 + input.EndTime.UTC().Minute()
+    query = query.Where(func(s *sql.Selector) {
+			expr := fmt.Sprintf(
+				"(EXTRACT(HOUR FROM %s::timestamp) * 60 + EXTRACT(MINUTE FROM %s::timestamp)) >= $1 AND " +
+				"(EXTRACT(HOUR FROM %s::timestamp) * 60 + EXTRACT(MINUTE FROM %s::timestamp)) <= $2",
+				match.FieldStartAt, match.FieldStartAt,
+				match.FieldEndAt, match.FieldEndAt,
 			)
-
-			endTimeExpr := sql.ExprP(
-				fmt.Sprintf("(EXTRACT(HOUR FROM %s) * 60 + EXTRACT(MINUTE FROM %s)) <= ?",
-				match.FieldEndAt, match.FieldEndAt),
-				endTimeMinutes,
-			)
-			s.Where(sql.And(startTimeExpr, endTimeExpr))
-		})
+			s.Where(sql.ExprP(expr, startTimeMinutes, endTimeMinutes))
+    })
 	}
 	if input.Location != nil && *input.Location != "" {
 		query = query.Where(
