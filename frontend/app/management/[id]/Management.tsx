@@ -382,13 +382,22 @@ const Management = ({ id }: MatchProps) => {
                   <p className="text-sm text-gray-600">参加費: {formData.fee}円</p>
                   <p className="text-sm text-gray-600 mt-1">{formData.notes}</p>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditing(true)}
-                  className="ml-4"
-                >
-                  編集
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    className="bg-white hover:bg-red-50 text-red-600 border-red-200"
+                    onClick={() => {}}
+                  >
+                    停止
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditing(true)}
+                    className="ml-4"
+                  >
+                    編集
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </>
@@ -401,7 +410,7 @@ const Management = ({ id }: MatchProps) => {
         ) : (
           participationsData?.participationsByMatchId.map((participation) => (
             <Card key={participation.id}>
-              <CardContent className="p-4">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">{participation.user.nickname}</h3>
