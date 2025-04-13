@@ -424,8 +424,8 @@ func (r *queryResolver) SearchMatches(ctx context.Context, input model.SearchMat
     endTimeMinutes := input.EndTime.UTC().Hour()*60 + input.EndTime.UTC().Minute()
     query = query.Where(func(s *sql.Selector) {
 			expr := fmt.Sprintf(
-				"(EXTRACT(HOUR FROM %s::timestamp) * 60 + EXTRACT(MINUTE FROM %s::timestamp)) >= $1 AND " +
-				"(EXTRACT(HOUR FROM %s::timestamp) * 60 + EXTRACT(MINUTE FROM %s::timestamp)) <= $2",
+				"(EXTRACT(HOUR FROM %s::timestamp) * 60 + EXTRACT(MINUTE FROM %s::timestamp)) >= $3 AND " +
+				"(EXTRACT(HOUR FROM %s::timestamp) * 60 + EXTRACT(MINUTE FROM %s::timestamp)) <= $4",
 				match.FieldStartAt, match.FieldStartAt,
 				match.FieldEndAt, match.FieldEndAt,
 			)
