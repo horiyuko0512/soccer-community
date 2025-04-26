@@ -56,6 +56,7 @@ const Management = ({ id }: MatchProps) => {
   const [showApproveDialog, setShowApproveDialog] = useState(false)
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [selectedParticipationId, setSelectedParticipationId] = useState<string | null>(null)
+  const [showStopDialog, setShowStopDialog] = useState(false)
 
   const {
     data: matchData,
@@ -159,6 +160,17 @@ const Management = ({ id }: MatchProps) => {
           endAt: formattedEndAt,
           participants: parseInt(formData.participants, 10),
           fee: parseInt(formData.fee, 10),
+        },
+      },
+    })
+  }
+
+  const handleStop = async () => {
+    await updateMatchMutation({
+      variables: {
+        id,
+        input: {
+          isApplied: false,
         },
       },
     })
@@ -386,7 +398,7 @@ const Management = ({ id }: MatchProps) => {
                   <Button
                     variant="outline"
                     className="bg-white hover:bg-red-50 text-red-600 border-red-200"
-                    onClick={() => {}}
+                    onClick={() => setShowStopDialog(true)}
                   >
                     停止
                   </Button>
@@ -486,6 +498,28 @@ const Management = ({ id }: MatchProps) => {
               className="bg-red-500 hover:bg-red-600"
             >
               {participationUpdateLoading ? <Loader className="animate-spin" /> : "却下する"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* 停止確認ダイアログ */}
+      <AlertDialog
+        open={showStopDialog}
+        onOpenChange={setShowStopDialog}
+      >
+        <AlertDialogContent className="sm:max-w-[80%] w-[80%] md:max-w-[610px] rounded-lg">
+          <AlertDialogHeader>
+            <AlertDialogTitle>試合の応募を停止しますか？</AlertDialogTitle>
+            <AlertDialogDescription>この操作は取り消すことができません。</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleStop}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              {matchUpdateLoading ? <Loader className="animate-spin" /> : "停止する"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
