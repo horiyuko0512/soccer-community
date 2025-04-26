@@ -490,51 +490,6 @@ func (r *queryResolver) SearchMatches(ctx context.Context, input model.SearchMat
 	return result, nil
 }
 
-// Participation is the resolver for the participation field.
-func (r *queryResolver) Participation(ctx context.Context, id string) (*model.Participation, error) {
-	_, ok := ctx.Value(middleware.UserIdKey).(string)
-	if !ok {
-		return nil, fmt.Errorf("Unauthorized")
-	}
-	participation, err := r.client.Participation.Get(ctx, uuid.MustParse(id))
-	if err != nil {
-		return nil, fmt.Errorf("failed getting participation: %w", err)
-	}
-	return &model.Participation{
-		ID:      participation.ID.String(),
-		UserID:  participation.UserID.String(),
-		MatchID: participation.MatchID.String(),
-		Status:  participation.Status,
-	}, nil
-}
-
-// Participations is the resolver for the participations field.
-func (r *queryResolver) Participations(ctx context.Context) ([]*model.Participation, error) {
-	_, ok := ctx.Value(middleware.UserIdKey).(string)
-	if !ok {
-		return nil, fmt.Errorf("Unauthorized")
-	}
-	participations, err := r.client.Participation.Query().
-		WithUser().
-		WithMatch().
-		Order(ent.Desc(participation.FieldCreatedAt)).
-		All(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed querying participations: %w", err)
-	}
-
-	var result []*model.Participation
-	for _, participation := range participations {
-		result = append(result, &model.Participation{
-			ID:      participation.ID.String(),
-			UserID:  participation.UserID.String(),
-			MatchID: participation.MatchID.String(),
-			Status:  participation.Status,
-		})
-	}
-	return result, nil
-}
-
 // ParticipationByUserIDAndMatchID is the resolver for the participationByUserIdAndMatchId field.
 func (r *queryResolver) ParticipationByUserIDAndMatchID(ctx context.Context, matchID string) (bool, error) {
 	userId, ok := ctx.Value(middleware.UserIdKey).(string)
@@ -632,29 +587,6 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 		NickName:     user.NickName,
 		Introduction: user.Introduction,
 	}, nil
-}
-
-// Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
-	_, ok := ctx.Value(middleware.UserIdKey).(string)
-	if !ok {
-		return nil, fmt.Errorf("Unauthorized")
-	}
-	users, err := r.client.User.Query().All(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed querying users: %w", err)
-	}
-
-	var result []*model.User
-	for _, user := range users {
-		result = append(result, &model.User{
-			ID:           user.ID.String(),
-			NickName:     user.NickName,
-			Email:        user.Email,
-			Introduction: user.Introduction,
-		})
-	}
-	return result, nil
 }
 
 // Mutation returns MutationResolver implementation.

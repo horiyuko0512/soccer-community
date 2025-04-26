@@ -407,13 +407,10 @@ type Query {
   matches: [Match!]!
   matchesByCreatorId: [Match!]!
   searchMatches(input: SearchMatchInput!): [Match!]!
-  participation(id: ID!): Participation!
-  participations: [Participation!]!
   participationByUserIdAndMatchId(matchID: ID!): Boolean!
   participationsByUserId: [Participation!]!
   participationsByMatchId(matchID: ID!): [Participation!]!
   user: User!
-  users: [User!]!
 }
 type Mutation {
   createMatch(input: CreateMatchInput!): Match!
