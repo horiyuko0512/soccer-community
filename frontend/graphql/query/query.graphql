@@ -6,16 +6,6 @@ query User {
   }
 }
 
-# すべてのユーザー閲覧用
-query Users {
-  users {
-    id
-    nickname
-    email
-    introduction
-  }
-}
-
 # 特定の試合閲覧用
 query Match($id: ID!) {
   match(id: $id) {
@@ -75,26 +65,6 @@ query searchMatches($input: SearchMatchInput!) {
     notes
     creatorID
     isApplied
-  }
-}
-
-# 特定の関係閲覧用
-query Participation($id: ID!) {
-  participation(id: $id) {
-    id
-    userID
-    matchID
-    status
-  }
-}
-
-# すべての関係閲覧用
-query Participations {
-  participations {
-    id
-    userID
-    matchID
-    status
   }
 }
 
