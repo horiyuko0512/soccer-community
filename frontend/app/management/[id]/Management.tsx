@@ -57,11 +57,13 @@ const Management = ({ id }: MatchProps) => {
   const [showRejectDialog, setShowRejectDialog] = useState(false)
   const [selectedParticipationId, setSelectedParticipationId] = useState<string | null>(null)
   const [showStopDialog, setShowStopDialog] = useState(false)
+  const [isMatchApplied, setIsMatchApplied] = useState(false)
 
   const {
     data: matchData,
     loading: matchLoading,
     error: matchError,
+    refetch,
   } = useMatchQuery({ variables: { id } })
   const {
     data: participationsData,
@@ -108,6 +110,7 @@ const Management = ({ id }: MatchProps) => {
   useEffect(() => {
     if (matchData?.match) {
       const match = matchData.match
+      setIsMatchApplied(match.isApplied)
       const eventDetails = formatEventDetails(match.startAt, match.endAt)
       setFormData({
         title: match.title,
@@ -165,15 +168,16 @@ const Management = ({ id }: MatchProps) => {
     })
   }
 
-  const handleStop = async () => {
+  const handleStop = async (isApplied: boolean) => {
     await updateMatchMutation({
       variables: {
         id,
         input: {
-          isApplied: false,
+          isApplied: !isApplied,
         },
       },
     })
+    await refetch()
   }
 
   const handleApprove = (participationId: string) => {
@@ -395,13 +399,23 @@ const Management = ({ id }: MatchProps) => {
                   <p className="text-sm text-gray-600 mt-1">{formData.notes}</p>
                 </div>
                 <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    className="bg-white hover:bg-red-50 text-red-600 border-red-200"
-                    onClick={() => setShowStopDialog(true)}
-                  >
-                    停止
-                  </Button>
+                  {isMatchApplied ? (
+                    <Button
+                      variant="outline"
+                      className="bg-white hover:bg-red-50 text-red-600 border-red-200"
+                      onClick={() => setShowStopDialog(true)}
+                    >
+                      停止
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      className="bg-white hover:bg-green-50 text-green-600 border-green-200"
+                      onClick={() => setShowStopDialog(true)}
+                    >
+                      再開
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     onClick={() => setIsEditing(true)}
@@ -510,16 +524,28 @@ const Management = ({ id }: MatchProps) => {
       >
         <AlertDialogContent className="sm:max-w-[80%] w-[80%] md:max-w-[610px] rounded-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>試合の応募を停止しますか？</AlertDialogTitle>
-            <AlertDialogDescription>この操作は取り消すことができません。</AlertDialogDescription>
+            <AlertDialogTitle>
+              {isMatchApplied ? "この試合の停止しますか？" : "この試合の再開しますか？"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isMatchApplied
+                ? "試合を停止すると、参加者は試合に参加できなくなります。"
+                : "試合を再開すると、参加者は試合に参加できるようになります。"}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>キャンセル</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleStop}
+              onClick={() => handleStop(isMatchApplied)}
               className="bg-red-500 hover:bg-red-600"
             >
-              {matchUpdateLoading ? <Loader className="animate-spin" /> : "停止する"}
+              {matchUpdateLoading ? (
+                <Loader className="animate-spin" />
+              ) : isMatchApplied ? (
+                "停止する"
+              ) : (
+                "再開する"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
